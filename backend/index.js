@@ -47,8 +47,6 @@ app.post('/login', async (req, res) => {
     if (user.password !== password) {
       return res.status(401).json({ message: 'Invalid password' });
     }
-
-    // Optional: You can send back role, name, etc.
     res.status(200).json({
       message: 'Login successful',
       user: {
@@ -57,7 +55,6 @@ app.post('/login', async (req, res) => {
         role: user.role
       }
     });
-    // console.log(res,'reeeeee')
   } catch (error) {
     console.error('Login error:', error);
     res.status(500).json({ message: 'Server error' });
@@ -67,9 +64,6 @@ app.post('/login', async (req, res) => {
 app.get('/view', async (request, response) => {
   try {
     const users = await loginmodel.find();
-
-    // Not needed: if (!users) check — because users will be [] if none found
-
     response.status(200).json({
       message: 'Success',
       users

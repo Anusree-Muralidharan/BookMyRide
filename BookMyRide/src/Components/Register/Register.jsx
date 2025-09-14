@@ -6,7 +6,7 @@ import {
   Paper,
   Alert
 } from "@mui/material"; 
-import './Register.css'; // Import the CSS file
+import './Register.css';
 import axios from 'axios'
 import { useNavigate } from "react-router-dom";
 export default function Registration() {
@@ -18,8 +18,6 @@ export default function Registration() {
   const navigate = useNavigate();
   const handleSubmit = (e) => {
     e.preventDefault();
-
-    // Basic validation for empty fields
     if (!name || !email || !password || !mobile) {
       setError("Please fill in all the fields.");
       return;
@@ -32,17 +30,16 @@ export default function Registration() {
       return;
     }
 
-    // Validate mobile number (assuming a 10-digit number)
+    // Validate mobile number
     const mobileRegex = /^[0-9]{10}$/;
     if (!mobileRegex.test(mobile)) {
       setError("Please enter a valid 10-digit mobile number.");
       return;
     }
 
-    setError(""); // Clear error if validation passes
+    setError("");
     console.log("Registration successful:", { name, email, password, mobile });
 
-    // TODO: Handle registration logic (e.g., send data to server)
     const payload = {
     name,
     email,
@@ -55,12 +52,10 @@ export default function Registration() {
       navigate('/login');
     })
     .catch(err => {
-      // If there is a response from the server
       if (err.response) {
         console.error('Error response:', err.response.data);
         alert('Error: ' + err.response.data.message || 'Something went wrong');
       } else {
-        // If no response (likely network error)
         console.error('Network Error:', err.message);
         alert('Network Error: ' + err.message);
       }

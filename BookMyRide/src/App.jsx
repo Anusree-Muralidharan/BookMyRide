@@ -10,17 +10,14 @@ import UserView from './Components/Admin/UserView/UserView';
 function AppContent() {
   const location = useLocation();
 
-  // ✅ show background only on initial (home) path
   const showGlobalBg = location.pathname === '/' || location.pathname === '/home' ;
 
   return (
     <div className="App">
       <Home />
-
       {showGlobalBg && (
         <img src={bg} alt="background" className="background" />
       )}
-
       <Routes>
         <Route
           path="/login"
@@ -56,7 +53,6 @@ function AppContent() {
             </div>
           }
         />
-        {/* Add other routes like register here */}
       </Routes>
     </div>
   );

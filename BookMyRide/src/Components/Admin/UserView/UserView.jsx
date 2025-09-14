@@ -52,7 +52,7 @@ const UserView = () => {
         });
   };
 
-  // Edit logic
+  // Edit user data
   const handleEdit = (user) => {
     setSelectedUser({ ...user }); // clone user object
     setOpenEdit(true);

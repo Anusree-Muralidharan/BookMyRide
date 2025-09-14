@@ -1,6 +1,3 @@
-/* Registration.css */
-
-/* Container for the registration form */
 .registration-container {
   min-height: 75vh;
   width: 50%;
@@ -11,8 +8,6 @@
   background-color: #fefefe;
 
 }
-
-/* Paper container for the registration form */
 .registration-paper {
   width: 100%;
   display: flex;
@@ -23,19 +18,14 @@
   padding: 2rem;
   border-radius: 16px;
 }
-
-/* TextField styling */
 .registration-field {
   margin-bottom: 1rem;
 }
 
-/* Error message styling */
 .error-message {
   margin-top: 1rem;
   margin-bottom: 0.5rem;
 }
-
-/* Register button styling */
 .registration-button {
   margin-top: 1rem !important;
   border-radius: 12px;

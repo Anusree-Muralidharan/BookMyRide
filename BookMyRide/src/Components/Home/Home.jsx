@@ -12,10 +12,6 @@ import { useNavigate } from 'react-router-dom';
 const Home = () => {
   const navigate = useNavigate(); 
   return (
-    // <div className='home'>
-    //   <h1>Welcome to BookMyRide</h1>
-    //   <i>Your journey, one click away!!</i>
-    // </div>
     <Box sx={{ flexGrow: 1 }} className='home'>
       <AppBar position="static">
         <Toolbar>
