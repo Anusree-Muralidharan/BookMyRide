@@ -1,0 +1,16 @@
+.App {
+  text-align: center;
+  /* display: flex; */
+}
+.App-login {
+  text-align: center;
+  display: flex;
+  position: fixed;
+}
+.background {
+  width: 100%;
+  height: 85vh;
+}
+.background-login {
+  height: 85vh;
+}

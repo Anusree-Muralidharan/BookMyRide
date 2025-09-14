@@ -1,0 +1,11 @@
+.home {
+    text-align: center;
+    h3 {
+     text-align: center !important;
+     margin: 0;;
+    }
+    i {
+     text-align: center !important;
+     font-size: 10px;
+    }
+}

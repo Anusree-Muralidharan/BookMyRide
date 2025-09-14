@@ -1,0 +1,43 @@
+/* Registration.css */
+
+/* Container for the registration form */
+.registration-container {
+  min-height: 75vh;
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 2rem;
+  background-color: #fefefe;
+
+}
+
+/* Paper container for the registration form */
+.registration-paper {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 2rem;
+  border-radius: 16px;
+}
+
+/* TextField styling */
+.registration-field {
+  margin-bottom: 1rem;
+}
+
+/* Error message styling */
+.error-message {
+  margin-top: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Register button styling */
+.registration-button {
+  margin-top: 1rem !important;
+  border-radius: 12px;
+  height: 40px;
+}
