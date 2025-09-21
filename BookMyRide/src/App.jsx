@@ -6,6 +6,9 @@ import './App.css';
 import bg from './assets/background-BookMyRide.png';
 import Registration from './Components/Register/Register';
 import UserView from './Components/Admin/UserView/UserView';
+import BusTypeView from './Components/Admin/BusView/BusTypeView';
+import BusView from './Components/Admin/Bus/BusView';
+import RoutesView from './Components/Admin/Routes/RoutesView';
 
 function AppContent() {
   const location = useLocation();
@@ -50,6 +53,30 @@ function AppContent() {
           element={
             <div>
               <UserView />
+            </div>
+          }
+        />
+        <Route
+          path="/bus-type"
+          element={
+            <div>
+              <BusTypeView />
+            </div>
+          }
+        />
+        <Route
+          path="/bus"
+          element={
+            <div>
+              <BusView />
+            </div>
+          }
+        />
+        <Route
+          path="/routes"
+          element={
+            <div>
+              <RoutesView />
             </div>
           }
         />

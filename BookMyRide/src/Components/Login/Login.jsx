@@ -31,6 +31,7 @@ export default function Login() {
     axios.post('http://localhost:3005/login',payload)
     .then(response => {
       console.log(response)
+      localStorage.setItem('userDetails',JSON.stringify(payload));
       alert('Login Completed Successfully!');
       navigate('/users');
     })

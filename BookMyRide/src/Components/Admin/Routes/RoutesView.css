@@ -1,0 +1,30 @@
+.route-container {
+  padding: 20px;
+}
+
+.route-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.route-table th,
+.route-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.route-table th {
+  background-color: #f2f2f2;
+  text-align: left;
+}
+
+.route-table tr:hover {
+  background-color: #f5f5f5;
+}
+.align-items {
+  text-align: left;
+}
+.dialog-header {
+    color: white !important;
+    background-color: #1976d2 !important;;
+}

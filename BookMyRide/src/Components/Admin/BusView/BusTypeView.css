@@ -1,0 +1,30 @@
+.bus-type-container {
+  padding: 20px;
+}
+
+.bus-type-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.bus-type-table th,
+.bus-type-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+.bus-type-table th {
+  background-color: #f2f2f2;
+  text-align: left;
+}
+
+.bus-type-table tr:hover {
+  background-color: #f5f5f5;
+}
+.align-items {
+  text-align: left;
+}
+.dialog-header {
+    color: white !important;
+    background-color: #1976d2 !important;;
+}
