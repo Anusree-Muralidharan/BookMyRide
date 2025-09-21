@@ -8,12 +8,12 @@
      text-align: center !important;
      font-size: 10px;
     }
+    .MuiListItemButton-root:hover {
+     background-color: grey;
+     color: black;
+    }
 }
 /* Drawer menu hover style */
-.MuiListItemButton-root:hover {
-  background-color: grey;   /* grey background on hover */
-}
 
-.MuiListItemButton-root:hover .MuiListItemText-primary {
-  color: white;             /* optional: white text for contrast */
-}
+
+

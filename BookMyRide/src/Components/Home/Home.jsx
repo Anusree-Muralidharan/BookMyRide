@@ -1,5 +1,5 @@
-import React, { useState } from 'react'
-import './Home.css';                     // ✅ keep the CSS import
+import React, { useState, useEffect } from 'react';
+import './Home.css';
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -13,14 +13,44 @@ import ListItem from '@mui/material/ListItem';
 import ListItemButton from '@mui/material/ListItemButton';
 import ListItemText from '@mui/material/ListItemText';
 import Divider from '@mui/material/Divider';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Home = () => {
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  let isMenuEnabled = JSON.parse(localStorage.getItem('userDetails') || '{}')
+
+  const location = useLocation();
+
+  const showGlobalBg = location.pathname === '/' || location.pathname === '/home' ;
 
   const toggleDrawer = (value) => () => {
     setOpen(value);
+  };
+  
+  const logout = () => {
+    localStorage.removeItem('userDetails')
+    navigate('/login')
+  }
+
+  const getHeaderText = () => {
+  const path = location.pathname;
+
+    switch (path) {
+      case '/users':
+        return 'Users';
+      case '/bus-type':
+        return 'Bus Types';
+      case '/bus':
+        return 'Buses';
+      case '/routes':
+        return 'Routes';
+      case '/':
+      case '/home':
+        return 'Welcome to BookMyRide';
+      default:
+        return 'Welcome to BookMyRide';
+    }
   };
 
   const menuItems = [
@@ -37,13 +67,13 @@ const Home = () => {
       onClick={toggleDrawer(false)}
       onKeyDown={toggleDrawer(false)}
     >
-      <Typography variant="h6" sx={{ p: 2 }}>
+      <Typography variant="h6" sx={{ p: 2 }} className=''>
         BookMyRide
       </Typography>
       <Divider />
       <List>
         {menuItems.map(item => (
-          <ListItem key={item.text} disablePadding>
+          <ListItem key={item.text} disablePadding className='home'>
             <ListItemButton onClick={() => navigate(item.path)}>
               <ListItemText primary={item.text} />
             </ListItemButton>
@@ -57,23 +87,34 @@ const Home = () => {
     <Box sx={{ flexGrow: 1 }} className='home'>
       <AppBar position="static">
         <Toolbar>
-          <IconButton
-            size="large"
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            sx={{ mr: 2 }}
-            onClick={toggleDrawer(true)}
-          >
-            <MenuIcon />
-          </IconButton>
+          {isMenuEnabled && isMenuEnabled.email && (
+            <IconButton
+              size="large"
+              edge="start"
+              color="inherit"
+              aria-label="menu"
+              sx={{ mr: 2 }}
+              onClick={toggleDrawer(true)}
+            >
+              <MenuIcon />
+            </IconButton>
+          )}
 
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            <h3>Welcome to BookMyRide</h3>
+            <h3>{getHeaderText()}</h3>
           </Typography>
 
-          <Button color="inherit" onClick={() => navigate('/register')}>Register</Button>
-          <Button color="inherit" onClick={() => navigate('/login')}>Log In</Button>
+          {!isMenuEnabled?.email && (
+            <>
+              <Button color="inherit" onClick={() => navigate('/register')}>Register</Button>
+              <Button color="inherit" onClick={() => navigate('/login')}>Log In</Button>
+            </>
+          )}
+          {isMenuEnabled?.email && (
+            <>
+              <Button color="inherit" onClick={logout}>Logout</Button>
+            </>
+          )}
         </Toolbar>
       </AppBar>
 

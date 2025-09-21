@@ -92,7 +92,7 @@ const BusTypeView = () => {
 
   return (
     <div className="bus-type-container">
-      <h2>Bus Types</h2>
+      {/* <h2>Bus Types</h2> */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <Button variant="contained" color="primary" onClick={handleOpenAdd}>
           Add

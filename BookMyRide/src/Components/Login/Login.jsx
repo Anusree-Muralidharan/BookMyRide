@@ -33,7 +33,8 @@ export default function Login() {
       console.log(response)
       localStorage.setItem('userDetails',JSON.stringify(payload));
       alert('Login Completed Successfully!');
-      navigate('/users');
+      navigate('/home');
+       window.location.reload();
     })
     .catch(err => {
       if (err.response) {

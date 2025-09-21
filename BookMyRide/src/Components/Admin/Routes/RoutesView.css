@@ -10,12 +10,13 @@
 .route-table th,
 .route-table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 10px 15px;
+  text-align: left;
 }
 
 .route-table th {
-  background-color: #f2f2f2;
-  text-align: left;
+  background-color: #607D8B;
+  color: white;
 }
 
 .route-table tr:hover {

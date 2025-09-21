@@ -78,7 +78,7 @@ const UserView = () => {
 
   return (
     <div className="user-view-container">
-      <h2>Users</h2>
+      {/* <h2>Users</h2> */}
       <table className="user-table">
         <thead>
           <tr>

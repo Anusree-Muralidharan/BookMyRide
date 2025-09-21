@@ -10,12 +10,13 @@
 .bus-type-table th,
 .bus-type-table td {
   border: 1px solid #ddd;
-  padding: 8px;
+  padding: 10px 15px;
+  text-align: left;
 }
 
 .bus-type-table th {
-  background-color: #f2f2f2;
-  text-align: left;
+  background-color: #607D8B;
+  color: white;
 }
 
 .bus-type-table tr:hover {

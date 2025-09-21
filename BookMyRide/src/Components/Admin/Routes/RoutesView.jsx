@@ -96,7 +96,7 @@ const RoutesView = () => {
 
   return (
     <div className="route-container">
-      <h2>Routes</h2>
+      {/* <h2>Routes</h2> */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <Button variant="contained" color="primary" onClick={handleOpenAdd}>
           Add
