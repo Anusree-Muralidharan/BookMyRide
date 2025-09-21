@@ -6,8 +6,8 @@ import './App.css';
 import bg from './assets/background-BookMyRide.png';
 import Registration from './Components/Register/Register';
 import UserView from './Components/Admin/UserView/UserView';
-import BusTypeView from './Components/Admin/BusView/BusTypeView';
-import BusView from './Components/Admin/Bus/BusView';
+import BusTypeView from './Components/Admin/BusTypeView/BusTypeView';
+import BusView from './Components/Admin/BusView/BusView';
 import RoutesView from './Components/Admin/Routes/RoutesView';
 
 function AppContent() {
