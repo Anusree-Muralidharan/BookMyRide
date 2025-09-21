@@ -47,16 +47,16 @@ const Home = () => {
         return 'Routes';
       case '/':
       case '/home':
-        return 'Welcome to BookMyRide';
+        return 'Welcome to EasyBus';
       default:
-        return 'Welcome to BookMyRide';
+        return 'Welcome to EasyBus';
     }
   };
 
   const menuItems = [
-    { text: 'User', path: '/users' },
-    { text: 'Bus Type', path: '/bus-type' },
-    { text: 'Bus', path: '/bus' },
+    { text: 'Users', path: '/users' },
+    { text: 'Bus Types', path: '/bus-type' },
+    { text: 'Buses', path: '/bus' },
     { text: 'Routes', path: '/routes' }
   ];
 
@@ -68,7 +68,7 @@ const Home = () => {
       onKeyDown={toggleDrawer(false)}
     >
       <Typography variant="h6" sx={{ p: 2 }} className=''>
-        BookMyRide
+        EasyBus
       </Typography>
       <Divider />
       <List>

@@ -22,6 +22,7 @@ const BusTypeView = () => {
   const [openEdit, setOpenEdit] = useState(false);
   const [newBusType, setNewBusType] = useState({ type: '', status: 'Active' });
   const [selectedBusType, setSelectedBusType] = useState(null);
+  const [errors, setErrors] = useState({}); // Validation errors
 
   // Fetch bus types from backend
   const fetchBusTypes = () => {
@@ -36,13 +37,31 @@ const BusTypeView = () => {
     fetchBusTypes();
   }, []);
 
+  // Validation function
+  const validate = (bus) => {
+    const newErrors = {};
+    if (!bus.type || bus.type.trim() === '') {
+      newErrors.type = 'Bus type is required';
+    }
+    if (!bus.status || (bus.status !== 'Active' && bus.status !== 'Inactive')) {
+      newErrors.status = 'Status must be Active or Inactive';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   // Add Bus Type
-  const handleOpenAdd = () => setOpenAdd(true);
+  const handleOpenAdd = () => {
+    setErrors({});
+    setOpenAdd(true);
+  };
   const handleCloseAdd = () => {
     setOpenAdd(false);
     setNewBusType({ type: '', status: 'Active' });
+    setErrors({});
   };
   const handleAdd = () => {
+    if (!validate(newBusType)) return;
     axios.post('http://localhost:3005/add-bus-type', newBusType)
       .then(res => {
         alert('Bus type added successfully');
@@ -58,13 +77,16 @@ const BusTypeView = () => {
   // Edit Bus Type
   const handleEdit = (bus) => {
     setSelectedBusType({ ...bus }); // clone selected bus type
+    setErrors({});
     setOpenEdit(true);
   };
   const handleCloseEdit = () => {
     setOpenEdit(false);
     setSelectedBusType(null);
+    setErrors({});
   };
   const handleUpdate = () => {
+    if (!validate(selectedBusType)) return;
     axios.put(`http://localhost:3005/update-bus-type/${selectedBusType._id}`, selectedBusType)
       .then(res => {
         alert('Bus type updated successfully');
@@ -92,7 +114,6 @@ const BusTypeView = () => {
 
   return (
     <div className="bus-type-container">
-      {/* <h2>Bus Types</h2> */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <Button variant="contained" color="primary" onClick={handleOpenAdd}>
           Add
@@ -147,6 +168,8 @@ const BusTypeView = () => {
             margin="normal"
             value={newBusType.type}
             onChange={(e) => setNewBusType({ ...newBusType, type: e.target.value })}
+            error={!!errors.type}
+            helperText={errors.type}
           />
           <Select
             fullWidth
@@ -157,6 +180,7 @@ const BusTypeView = () => {
             <MenuItem value="Active">Active</MenuItem>
             <MenuItem value="Inactive">Inactive</MenuItem>
           </Select>
+          {errors.status && <p style={{ color: 'red', fontSize: '0.8rem', marginTop: '5px' }}>{errors.status}</p>}
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseAdd} color="secondary">Cancel</Button>
@@ -176,6 +200,8 @@ const BusTypeView = () => {
                 margin="normal"
                 value={selectedBusType.type}
                 onChange={(e) => setSelectedBusType({ ...selectedBusType, type: e.target.value })}
+                error={!!errors.type}
+                helperText={errors.type}
               />
               <Select
                 fullWidth
@@ -186,6 +212,7 @@ const BusTypeView = () => {
                 <MenuItem value="Active">Active</MenuItem>
                 <MenuItem value="Inactive">Inactive</MenuItem>
               </Select>
+              {errors.status && <p style={{ color: 'red', fontSize: '0.8rem', marginTop: '5px' }}>{errors.status}</p>}
             </>
           )}
         </DialogContent>

@@ -23,6 +23,7 @@ const UserView = () => {
   const [users, setUsers] = useState([]);
   const [openEdit, setOpenEdit] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const [errors, setErrors] = useState({}); // Error state
 
   // Fetch user list from backend
   const fetchUsers = () => {
@@ -55,20 +56,56 @@ const UserView = () => {
   // Edit user data
   const handleEdit = (user) => {
     setSelectedUser({ ...user }); // clone user object
+    setErrors({}); // reset errors
     setOpenEdit(true);
   };
 
   const handleCloseEdit = () => {
     setOpenEdit(false);
     setSelectedUser(null);
+    setErrors({});
+  };
+
+  // Form validation
+  const validate = () => {
+    const newErrors = {};
+
+    if (!selectedUser.name || selectedUser.name.trim() === '') {
+      newErrors.name = 'Name is required';
+    }
+
+    if (!selectedUser.email || selectedUser.email.trim() === '') {
+      newErrors.email = 'Email is required';
+    } else if (
+      !/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(selectedUser.email)
+    ) {
+      newErrors.email = 'Invalid email address';
+    }
+
+    if (!selectedUser.mobile || selectedUser.mobile.trim() === '') {
+      newErrors.mobile = 'Mobile number is required';
+    } else if (!/^\d{10}$/.test(selectedUser.mobile)) {
+      newErrors.mobile = 'Mobile number must be 10 digits';
+    }
+
+    if (!selectedUser.role) {
+      newErrors.role = 'Role is required';
+    }
+
+    setErrors(newErrors);
+
+    return Object.keys(newErrors).length === 0; // Return true if no errors
   };
 
   const handleUpdate = () => {
+    if (!validate()) return; // Stop if validation fails
+
     axios.put(`http://localhost:3005/updateUser/${selectedUser._id}`, selectedUser)
       .then(res => {
         alert("User updated successfully");
         setOpenEdit(false);
         fetchUsers();
+        setErrors({});
       })
       .catch(err => {
         console.error("Update failed", err);
@@ -78,7 +115,6 @@ const UserView = () => {
 
   return (
     <div className="user-view-container">
-      {/* <h2>Users</h2> */}
       <table className="user-table">
         <thead>
           <tr>
@@ -135,6 +171,8 @@ const UserView = () => {
                 onChange={(e) =>
                   setSelectedUser({ ...selectedUser, name: e.target.value })
                 }
+                error={!!errors.name}
+                helperText={errors.name}
               />
               <TextField
                 label="Email"
@@ -144,6 +182,8 @@ const UserView = () => {
                 onChange={(e) =>
                   setSelectedUser({ ...selectedUser, email: e.target.value })
                 }
+                error={!!errors.email}
+                helperText={errors.email}
               />
               <TextField
                 label="Mobile"
@@ -153,6 +193,8 @@ const UserView = () => {
                 onChange={(e) =>
                   setSelectedUser({ ...selectedUser, mobile: e.target.value })
                 }
+                error={!!errors.mobile}
+                helperText={errors.mobile}
               />
               <RadioGroup
                 row
@@ -164,6 +206,9 @@ const UserView = () => {
                 <FormControlLabel value="User" control={<Radio />} label="User" />
                 <FormControlLabel value="Admin" control={<Radio />} label="Admin" />
               </RadioGroup>
+              {errors.role && (
+                <p style={{ color: 'red', fontSize: '0.8rem', marginTop: '-10px' }}>{errors.role}</p>
+              )}
             </>
           )}
         </DialogContent>

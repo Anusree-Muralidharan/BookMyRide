@@ -29,6 +29,7 @@ const BusView = () => {
     rc: ''
   });
   const [selectedBus, setSelectedBus] = useState(null);
+  const [errors, setErrors] = useState({}); // Validation errors
 
   // Fetch buses
   const fetchBuses = () => {
@@ -49,13 +50,30 @@ const BusView = () => {
     fetchBusTypes();
   }, []);
 
+  // Validation function
+  const validate = (bus) => {
+    const newErrors = {};
+    if (!bus.name || bus.name.trim() === '') newErrors.name = 'Bus name is required';
+    if (!bus.typeId) newErrors.typeId = 'Bus type is required';
+    if (!bus.totalSeats || isNaN(bus.totalSeats) || bus.totalSeats <= 0) newErrors.totalSeats = 'Total seats must be a positive number';
+    if (!bus.vehicleNo || bus.vehicleNo.trim() === '') newErrors.vehicleNo = 'Vehicle number is required';
+    if (!bus.rc || bus.rc.trim() === '') newErrors.rc = 'RC is required';
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   // Add Bus
-  const handleOpenAdd = () => setOpenAdd(true);
+  const handleOpenAdd = () => {
+    setErrors({});
+    setOpenAdd(true);
+  };
   const handleCloseAdd = () => {
     setOpenAdd(false);
     setNewBus({ name: '', typeId: '', totalSeats: '', vehicleNo: '', rc: '' });
+    setErrors({});
   };
   const handleAdd = () => {
+    if (!validate(newBus)) return;
     axios.post('http://localhost:3005/add-bus', newBus)
       .then(res => {
         alert('Bus added successfully');
@@ -71,13 +89,16 @@ const BusView = () => {
   // Edit Bus
   const handleEdit = (bus) => {
     setSelectedBus({ ...bus });
+    setErrors({});
     setOpenEdit(true);
   };
   const handleCloseEdit = () => {
     setOpenEdit(false);
     setSelectedBus(null);
+    setErrors({});
   };
   const handleUpdate = () => {
+    if (!validate(selectedBus)) return;
     axios.put(`http://localhost:3005/update-bus/${selectedBus._id}`, selectedBus)
       .then(res => {
         alert('Bus updated successfully');
@@ -105,7 +126,6 @@ const BusView = () => {
 
   return (
     <div className="bus-container">
-      {/* <h2>Buses</h2> */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <Button variant="contained" color="primary" onClick={handleOpenAdd}>
           Add
@@ -164,22 +184,25 @@ const BusView = () => {
             margin="normal"
             value={newBus.name}
             onChange={(e) => setNewBus({ ...newBus, name: e.target.value })}
+            error={!!errors.name}
+            helperText={errors.name}
           />
           <Select
             fullWidth
             value={newBus.typeId || ''}
-            aria-placeholder='Bus Type'
-            displayEmpty                 
+            displayEmpty
             onChange={(e) => setNewBus({ ...newBus, typeId: e.target.value })}
             style={{ marginTop: '16px' }}
+            error={!!errors.typeId}
           >
-            <MenuItem value="" disabled selected>
+            <MenuItem value="" disabled>
               Bus Type
-            </MenuItem> 
+            </MenuItem>
             {busTypes.map((type, idx) => (
               <MenuItem key={idx} value={type._id}>{type.type}</MenuItem>
             ))}
           </Select>
+          {errors.typeId && <p style={{ color: 'red', marginTop: '4px', fontSize: '12px' }}>{errors.typeId}</p>}
           <TextField
             label="Total Seats"
             fullWidth
@@ -187,6 +210,8 @@ const BusView = () => {
             type="number"
             value={newBus.totalSeats}
             onChange={(e) => setNewBus({ ...newBus, totalSeats: parseInt(e.target.value) })}
+            error={!!errors.totalSeats}
+            helperText={errors.totalSeats}
           />
           <TextField
             label="Vehicle No"
@@ -194,6 +219,8 @@ const BusView = () => {
             margin="normal"
             value={newBus.vehicleNo}
             onChange={(e) => setNewBus({ ...newBus, vehicleNo: e.target.value })}
+            error={!!errors.vehicleNo}
+            helperText={errors.vehicleNo}
           />
           <TextField
             label="RC"
@@ -201,6 +228,8 @@ const BusView = () => {
             margin="normal"
             value={newBus.rc}
             onChange={(e) => setNewBus({ ...newBus, rc: e.target.value })}
+            error={!!errors.rc}
+            helperText={errors.rc}
           />
         </DialogContent>
         <DialogActions>
@@ -221,17 +250,21 @@ const BusView = () => {
                 margin="normal"
                 value={selectedBus.name}
                 onChange={(e) => setSelectedBus({ ...selectedBus, name: e.target.value })}
+                error={!!errors.name}
+                helperText={errors.name}
               />
               <Select
                 fullWidth
                 value={selectedBus.typeId}
                 onChange={(e) => setSelectedBus({ ...selectedBus, typeId: e.target.value })}
                 style={{ marginTop: '16px' }}
+                error={!!errors.typeId}
               >
                 {busTypes.map((type, idx) => (
                   <MenuItem key={idx} value={type._id}>{type.type}</MenuItem>
                 ))}
               </Select>
+              {errors.typeId && <p style={{ color: 'red', marginTop: '4px', fontSize: '12px' }}>{errors.typeId}</p>}
               <TextField
                 label="Total Seats"
                 fullWidth
@@ -239,6 +272,8 @@ const BusView = () => {
                 type="number"
                 value={selectedBus.totalSeats}
                 onChange={(e) => setSelectedBus({ ...selectedBus, totalSeats: parseInt(e.target.value) })}
+                error={!!errors.totalSeats}
+                helperText={errors.totalSeats}
               />
               <TextField
                 label="Vehicle No"
@@ -246,6 +281,8 @@ const BusView = () => {
                 margin="normal"
                 value={selectedBus.vehicleNo}
                 onChange={(e) => setSelectedBus({ ...selectedBus, vehicleNo: e.target.value })}
+                error={!!errors.vehicleNo}
+                helperText={errors.vehicleNo}
               />
               <TextField
                 label="RC"
@@ -253,6 +290,8 @@ const BusView = () => {
                 margin="normal"
                 value={selectedBus.rc}
                 onChange={(e) => setSelectedBus({ ...selectedBus, rc: e.target.value })}
+                error={!!errors.rc}
+                helperText={errors.rc}
               />
             </>
           )}

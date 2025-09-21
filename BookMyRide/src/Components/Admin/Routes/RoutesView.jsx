@@ -24,6 +24,7 @@ const RoutesView = () => {
     distance: ''
   });
   const [selectedRoute, setSelectedRoute] = useState(null);
+  const [errors, setErrors] = useState({}); // Validation errors
 
   // Fetch routes
   const fetchRoutes = () => {
@@ -36,8 +37,29 @@ const RoutesView = () => {
     fetchRoutes();
   }, []);
 
+  // Validation function
+  const validate = (route) => {
+    const newErrors = {};
+    if (!route.sourceLocation || route.sourceLocation.trim() === '') {
+      newErrors.sourceLocation = 'Source location is required';
+    }
+    if (!route.destinationLocation || route.destinationLocation.trim() === '') {
+      newErrors.destinationLocation = 'Destination location is required';
+    }
+    if (route.distance === '' || route.distance === null || isNaN(route.distance)) {
+      newErrors.distance = 'Distance is required';
+    } else if (route.distance <= 0) {
+      newErrors.distance = 'Distance must be greater than 0';
+    }
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   // Add Route
-  const handleOpenAdd = () => setOpenAdd(true);
+  const handleOpenAdd = () => {
+    setErrors({});
+    setOpenAdd(true);
+  };
   const handleCloseAdd = () => {
     setOpenAdd(false);
     setNewRoute({
@@ -45,8 +67,10 @@ const RoutesView = () => {
       destinationLocation: '',
       distance: ''
     });
+    setErrors({});
   };
   const handleAdd = () => {
+    if (!validate(newRoute)) return;
     axios.post('http://localhost:3005/add-route', newRoute)
       .then(res => {
         alert('Route added successfully');
@@ -62,13 +86,16 @@ const RoutesView = () => {
   // Edit Route
   const handleEdit = (route) => {
     setSelectedRoute({ ...route });
+    setErrors({});
     setOpenEdit(true);
   };
   const handleCloseEdit = () => {
     setOpenEdit(false);
     setSelectedRoute(null);
+    setErrors({});
   };
   const handleUpdate = () => {
+    if (!validate(selectedRoute)) return;
     axios.put(`http://localhost:3005/update-route/${selectedRoute._id}`, selectedRoute)
       .then(res => {
         alert('Route updated successfully');
@@ -96,7 +123,6 @@ const RoutesView = () => {
 
   return (
     <div className="route-container">
-      {/* <h2>Routes</h2> */}
       <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '16px' }}>
         <Button variant="contained" color="primary" onClick={handleOpenAdd}>
           Add
@@ -151,6 +177,8 @@ const RoutesView = () => {
             margin="normal"
             value={newRoute.sourceLocation}
             onChange={(e) => setNewRoute({ ...newRoute, sourceLocation: e.target.value })}
+            error={!!errors.sourceLocation}
+            helperText={errors.sourceLocation}
           />
           <TextField
             label="Destination Location"
@@ -158,6 +186,8 @@ const RoutesView = () => {
             margin="normal"
             value={newRoute.destinationLocation}
             onChange={(e) => setNewRoute({ ...newRoute, destinationLocation: e.target.value })}
+            error={!!errors.destinationLocation}
+            helperText={errors.destinationLocation}
           />
           <TextField
             label="Distance (km)"
@@ -166,6 +196,8 @@ const RoutesView = () => {
             type="number"
             value={newRoute.distance}
             onChange={(e) => setNewRoute({ ...newRoute, distance: parseFloat(e.target.value) })}
+            error={!!errors.distance}
+            helperText={errors.distance}
           />
         </DialogContent>
         <DialogActions>
@@ -186,6 +218,8 @@ const RoutesView = () => {
                 margin="normal"
                 value={selectedRoute.sourceLocation}
                 onChange={(e) => setSelectedRoute({ ...selectedRoute, sourceLocation: e.target.value })}
+                error={!!errors.sourceLocation}
+                helperText={errors.sourceLocation}
               />
               <TextField
                 label="Destination Location"
@@ -193,6 +227,8 @@ const RoutesView = () => {
                 margin="normal"
                 value={selectedRoute.destinationLocation}
                 onChange={(e) => setSelectedRoute({ ...selectedRoute, destinationLocation: e.target.value })}
+                error={!!errors.destinationLocation}
+                helperText={errors.destinationLocation}
               />
               <TextField
                 label="Distance (km)"
@@ -201,6 +237,8 @@ const RoutesView = () => {
                 type="number"
                 value={selectedRoute.distance}
                 onChange={(e) => setSelectedRoute({ ...selectedRoute, distance: parseFloat(e.target.value) })}
+                error={!!errors.distance}
+                helperText={errors.distance}
               />
             </>
           )}
