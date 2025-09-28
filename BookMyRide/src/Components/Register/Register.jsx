@@ -44,7 +44,8 @@ export default function Registration() {
     name,
     email,
     password,
-    mobile
+    mobile,
+    status: 'Active'
   };
     axios.post('http://localhost:3005/new',payload)
     .then(response => {

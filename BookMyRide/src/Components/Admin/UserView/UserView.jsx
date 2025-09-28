@@ -16,7 +16,9 @@ import {
   RadioGroup,
   FormControlLabel,
   Radio,
-  Button
+  Button,
+  Select,
+  MenuItem
 } from '@mui/material';
 
 const UserView = () => {
@@ -42,10 +44,12 @@ const UserView = () => {
 
   // Delete user
   const handleDelete = (id) => {
-      axios.delete(`http://localhost:3005/removeUser/${id}`)
+      axios.put(`http://localhost:3005/removeUser/${id}`)
         .then((response) => {
           alert(response.data.message);
-          setUsers(prev => prev.filter(user => user._id !== id));
+           setUsers(prev =>
+            prev.map(user => user._id === id ? { ...user, status: 'Inactive' } : user)
+          );
         })
         .catch((error) => {
           console.error('Delete error:', error);
@@ -122,6 +126,7 @@ const UserView = () => {
             <th>Email</th>
             <th>Mobile</th>
             <th>Role</th>
+            <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -133,6 +138,7 @@ const UserView = () => {
                 <td>{user.email}</td>
                 <td>{user.mobile}</td>
                 <td>{user.role}</td>
+                <td>{user.status}</td>
                 <td>
                   <Tooltip title="Edit">
                     <IconButton sx={{ color: 'rgb(22, 111, 125)' }} onClick={() => handleEdit(user)}>
@@ -206,6 +212,15 @@ const UserView = () => {
                 <FormControlLabel value="User" control={<Radio />} label="User" />
                 <FormControlLabel value="Admin" control={<Radio />} label="Admin" />
               </RadioGroup>
+              <Select
+                fullWidth
+                value={selectedUser.status}
+                onChange={(e) => setSelectedUser({ ...selectedUser, status: e.target.value })}
+                style={{ marginTop: '16px' }}
+              >
+                <MenuItem value="Active">Active</MenuItem>
+                <MenuItem value="Inactive">Inactive</MenuItem>
+              </Select>
               {errors.role && (
                 <p style={{ color: 'red', fontSize: '0.8rem', marginTop: '-10px' }}>{errors.role}</p>
               )}

@@ -79,12 +79,12 @@ app.get('/view', async (request, response) => {
 });
 
 // DELETE a user by ID
-app.delete('/removeUser/:id', async (req, res) => {
+app.put('/removeUser/:id', async (req, res) => {
   try {
-    await loginmodel.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'User deleted successfully' });
-  } catch (error) {
-    console.error('Delete error:', error);
+    const updatedUser = await loginmodel.findByIdAndUpdate(req.params.id, { status:'Inactive' }, { new: true });
+    res.status(200).json({ message: 'User deleted successfully', updatedUser });
+  } catch (err) {
+    console.error('Delete error:', err);
     res.status(500).json({ message: 'Error deleting user' });
   }
 });
@@ -129,13 +129,13 @@ app.post('/add-bus-type', (request, response) => {
 });
 
 // DELETE a bus type by ID
-app.delete('/remove-bus-type/:id', async (req, res) => {
+app.put('/remove-bus-type/:id', async (req, res) => {
   try {
-    await busTypemodel.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'bus type deleted successfully' });
-  } catch (error) {
-    console.error('Delete error:', error);
-    res.status(500).json({ message: 'Error deleting bus type' });
+    const updatedBusType = await busTypemodel.findByIdAndUpdate(req.params.id, { status:'Inactive' }, { new: true });
+    res.status(200).json({ message: 'bus type updated successfully', updatedBusType });
+  } catch (err) {
+    console.error('Error updating bus type:', err);
+    res.status(500).json({ message: 'Error updating bus type' });
   }
 });
 
@@ -179,13 +179,13 @@ app.post('/add-bus', (request, response) => {
 });
 
 // DELETE a bus type by ID
-app.delete('/remove-bus/:id', async (req, res) => {
+app.put('/remove-bus/:id', async (req, res) => {
   try {
-    await busmodel.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'bus deleted successfully' });
-  } catch (error) {
-    console.error('Delete error:', error);
-    res.status(500).json({ message: 'Error deleting bus' });
+    const updatedBus = await busmodel.findByIdAndUpdate(req.params.id, { status:'Inactive' }, { new: true });
+    res.status(200).json({ message: 'bus updated successfully', updatedBus });
+  } catch (err) {
+    console.error('Error updating bus:', err);
+    res.status(500).json({ message: 'Error updating bus' });
   }
 });
 
@@ -229,13 +229,13 @@ app.post('/add-route', (request, response) => {
 });
 
 // DELETE a route by ID
-app.delete('/remove-route/:id', async (req, res) => {
+app.put('/remove-route/:id', async (req, res) => {
   try {
-    await routesmodel.findByIdAndDelete(req.params.id);
-    res.status(200).json({ message: 'Route deleted successfully' });
-  } catch (error) {
-    console.error('Delete error:', error);
-    res.status(500).json({ message: 'Error deleting bus type' });
+    const updatedRoute = await routesmodel.findByIdAndUpdate(req.params.id, { status:'Inactive' }, { new: true });
+    res.status(200).json({ message: 'Route updated successfully', updatedRoute });
+  } catch (err) {
+    console.error('Error updating route:', err);
+    res.status(500).json({ message: 'Error updating route' });
   }
 });
 

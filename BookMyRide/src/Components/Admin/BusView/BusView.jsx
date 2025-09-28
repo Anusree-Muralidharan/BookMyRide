@@ -26,7 +26,8 @@ const BusView = () => {
     typeId: '',
     totalSeats: '',
     vehicleNo: '',
-    rc: ''
+    rc: '',
+    status: 'Active'
   });
   const [selectedBus, setSelectedBus] = useState(null);
   const [errors, setErrors] = useState({}); // Validation errors
@@ -41,8 +42,14 @@ const BusView = () => {
   // Fetch bus types
   const fetchBusTypes = () => {
     axios.get('http://localhost:3005/bus-types')
-      .then(res => setBusTypes(res.data.busTypes))
-      .catch(err => console.error('Error fetching bus types:', err));
+      .then(res => {
+        // keep only types whose status is "Active"
+        const activeTypes = res.data.busTypes.filter(
+          type => type.status === 'Active'
+        );
+        setBusTypes(activeTypes);
+      })
+      .catch(err => console.error('Error fetching bus types', err));
   };
 
   useEffect(() => {
@@ -111,18 +118,20 @@ const BusView = () => {
       });
   };
 
-  // Delete Bus
-  const handleDelete = (id) => {
-    axios.delete(`http://localhost:3005/remove-bus/${id}`)
-      .then(res => {
-        alert('Bus deleted successfully');
-        setBuses(prev => prev.filter(bus => bus._id !== id));
-      })
-      .catch(err => {
-        console.error('Delete failed', err);
-        alert('Failed to delete bus');
-      });
-  };
+const handleDelete = (id) => {
+  axios.put(`http://localhost:3005/remove-bus/${id}`)
+    .then(res => {
+      alert('Bus status updated to Inactive');
+      // update UI immediately
+      setBuses(prev =>
+        prev.map(bus => bus._id === id ? { ...bus, status: 'Inactive' } : bus)
+      );
+    })
+    .catch(err => {
+      console.error('Deactivate failed', err);
+      alert('Failed to update bus status');
+    });
+};
 
   return (
     <div className="bus-container">
@@ -140,6 +149,7 @@ const BusView = () => {
             <th>Total Seats</th>
             <th>Vehicle No</th>
             <th>RC</th>
+            <th>Sstatus</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -152,6 +162,7 @@ const BusView = () => {
                 <td>{bus.totalSeats}</td>
                 <td>{bus.vehicleNo}</td>
                 <td>{bus.rc}</td>
+                <td>{bus.status}</td>
                 <td>
                   <Tooltip title="Edit">
                     <IconButton sx={{ color: 'rgb(22, 111, 125)' }} onClick={() => handleEdit(bus)}>
@@ -231,6 +242,15 @@ const BusView = () => {
             error={!!errors.rc}
             helperText={errors.rc}
           />
+          <Select
+            fullWidth
+            value={newBus.status}
+            onChange={(e) => setNewBus({ ...newBus, status: e.target.value })}
+            style={{ marginTop: '16px' }}
+          >
+            <MenuItem value="Active">Active</MenuItem>
+            <MenuItem value="Inactive">Inactive</MenuItem>
+          </Select>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseAdd} color="secondary">Cancel</Button>
@@ -293,6 +313,15 @@ const BusView = () => {
                 error={!!errors.rc}
                 helperText={errors.rc}
               />
+              <Select
+                fullWidth
+                value={selectedBus.status}
+                onChange={(e) => setSelectedBus({ ...selectedBus, status: e.target.value })}
+                style={{ marginTop: '16px' }}
+              >
+                <MenuItem value="Active">Active</MenuItem>
+                <MenuItem value="Inactive">Inactive</MenuItem>
+              </Select>
             </>
           )}
         </DialogContent>

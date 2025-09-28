@@ -6,7 +6,8 @@ const loginSchema = new sc({
     email:String,
     password:String,
     mobile: String,
-    role: { type: String, default: 'User' }
+    role: { type: String, default: 'User' },
+    status: {type:String, required :true}
 });
 var loginmodel=mongoose.model("users",loginSchema)
 module.exports=loginmodel;

@@ -101,15 +101,18 @@ const BusTypeView = () => {
 
   // Delete Bus Type
   const handleDelete = (id) => {
-    axios.delete(`http://localhost:3005/remove-bus-type/${id}`)
-      .then(res => {
-        alert('Bus type deleted successfully');
-        setBusTypes(prev => prev.filter(bus => bus._id !== id));
-      })
-      .catch(err => {
-        console.error('Delete failed', err);
-        alert('Failed to delete bus type');
-      });
+    axios.put(`http://localhost:3005/remove-bus-type/${id}`)
+    .then(res => {
+      alert('Bus type deleted successfully');
+      // update UI immediately
+      setBusTypes(prev =>
+        prev.map(busType => busType._id === id ? { ...busType, status: 'Inactive' } : busType)
+      );
+    })
+    .catch(err => {
+      console.error('Deactivate failed', err);
+      alert('Failed to update bus status');
+    });
   };
 
   return (

@@ -11,7 +11,9 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  TextField
+  TextField,
+  Select,
+  MenuItem
 } from '@mui/material';
 
 const RoutesView = () => {
@@ -21,7 +23,8 @@ const RoutesView = () => {
   const [newRoute, setNewRoute] = useState({
     sourceLocation: '',
     destinationLocation: '',
-    distance: ''
+    distance: '',
+    status: 'Active'
   });
   const [selectedRoute, setSelectedRoute] = useState(null);
   const [errors, setErrors] = useState({}); // Validation errors
@@ -65,7 +68,8 @@ const RoutesView = () => {
     setNewRoute({
       sourceLocation: '',
       destinationLocation: '',
-      distance: ''
+      distance: '',
+      status:'Active'
     });
     setErrors({});
   };
@@ -110,10 +114,12 @@ const RoutesView = () => {
 
   // Delete Route
   const handleDelete = (id) => {
-    axios.delete(`http://localhost:3005/remove-route/${id}`)
+    axios.put(`http://localhost:3005/remove-route/${id}`)
       .then(res => {
         alert('Route deleted successfully');
-        setRoutes(prev => prev.filter(route => route._id !== id));
+         setRoutes(prev =>
+        prev.map(route => route._id === id ? { ...route, status: 'Inactive' } : route)
+      );
       })
       .catch(err => {
         console.error('Delete failed', err);
@@ -135,6 +141,7 @@ const RoutesView = () => {
             <th>Source Location</th>
             <th>Destination Location</th>
             <th>Distance (km)</th>
+            <th>Status</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -145,6 +152,7 @@ const RoutesView = () => {
                 <td>{route.sourceLocation}</td>
                 <td>{route.destinationLocation}</td>
                 <td>{route.distance}</td>
+                <td>{route.status}</td>
                 <td>
                   <Tooltip title="Edit">
                     <IconButton sx={{ color: 'rgb(22, 111, 125)' }} onClick={() => handleEdit(route)}>
@@ -199,6 +207,15 @@ const RoutesView = () => {
             error={!!errors.distance}
             helperText={errors.distance}
           />
+          <Select
+            fullWidth
+            value={newRoute.status}
+            onChange={(e) => setNewRoute({ ...newRoute, status: e.target.value })}
+            style={{ marginTop: '16px' }}
+          >
+            <MenuItem value="Active">Active</MenuItem>
+            <MenuItem value="Inactive">Inactive</MenuItem>
+          </Select>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleCloseAdd} color="secondary">Cancel</Button>
@@ -240,6 +257,15 @@ const RoutesView = () => {
                 error={!!errors.distance}
                 helperText={errors.distance}
               />
+              <Select
+                fullWidth
+                value={selectedRoute.status}
+                onChange={(e) => setSelectedRoute({ ...selectedRoute, status: e.target.value })}
+                style={{ marginTop: '16px' }}
+              >
+                <MenuItem value="Active">Active</MenuItem>
+                <MenuItem value="Inactive">Inactive</MenuItem>
+              </Select>
             </>
           )}
         </DialogContent>
