@@ -4,6 +4,8 @@ const loginmodel = require('./model/user')
 const busTypemodel = require('./model/busType')
 const cors=require("cors")
 const mongoose = require('mongoose');
+const multer = require("multer");
+const path = require("path");
 
 const db = require("./Connection/DBConnection");
 const busmodel = require('./model/bus');
@@ -11,6 +13,7 @@ const routesmodel = require('./model/routes');
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json());
 app.use(cors());
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.listen(3005, () => {
   console.log('✅ Server is listening on http://localhost:3005');
@@ -149,6 +152,20 @@ app.put('/update-bus-type/:id', async (req, res) => {
   }
 });
 
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+     cb(null, path.join(process.cwd(), "uploads"));
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname)); // unique filename
+  }
+});
+
+const upload = multer({ storage });
+
+// ======================================================
+// GET ALL BUSES
+// ======================================================
 app.get('/buses', async (request, response) => {
   try {
     const buses = await busmodel.find();
@@ -163,39 +180,69 @@ app.get('/buses', async (request, response) => {
   }
 });
 
-app.post('/add-bus', (request, response) => {
 
-  const newRecord = new busmodel(request.body);
+// ======================================================
+// ADD BUS (WITH IMAGE)
+// ======================================================
+app.post('/add-bus', upload.single("image"), (request, response) => {
 
-  // Save the record to the database
+  const newRecord = new busmodel({
+    ...request.body,
+    image: request.file ? request.file.filename : null
+  });
+
   newRecord.save()
     .then(() => {
-      response.send('Records saved successfully');
+      response.send('Bus added successfully');
     })
     .catch((error) => {
       console.error(error);
-      response.status(500).send('Error saving the record');
+      response.status(500).send('Error saving the bus');
     });
 });
 
-// DELETE a bus type by ID
+
+// ======================================================
+// REMOVE (INACTIVATE) BUS
+// ======================================================
 app.put('/remove-bus/:id', async (req, res) => {
   try {
-    const updatedBus = await busmodel.findByIdAndUpdate(req.params.id, { status:'Inactive' }, { new: true });
-    res.status(200).json({ message: 'bus updated successfully', updatedBus });
+    const updatedBus = await busmodel.findByIdAndUpdate(
+      req.params.id,
+      { status: 'Inactive' },
+      { new: true }
+    );
+    res.status(200).json({ message: 'Bus updated successfully', updatedBus });
   } catch (err) {
     console.error('Error updating bus:', err);
     res.status(500).json({ message: 'Error updating bus' });
   }
 });
 
-app.put('/update-bus/:id', async (req, res) => {
+
+// ======================================================
+// UPDATE BUS (WITH OPTIONAL IMAGE UPDATE)
+// ======================================================
+app.put('/update-bus/:id', upload.single("image"), async (req, res) => {
   try {
-    const updatedBus = await busmodel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.status(200).json({ message: 'bus updated successfully', updatedBus });
+    const updateData = { ...req.body };
+
+    // Only update image if a new one is uploaded
+    if (req.file) {
+      updateData.image = req.file.filename;
+    }
+
+    const updatedBus = await busmodel.findByIdAndUpdate(
+      req.params.id,
+      updateData,
+      { new: true }
+    );
+
+    res.status(200).json({ message: "Bus updated successfully", updatedBus });
+
   } catch (err) {
-    console.error('Error updating bus:', err);
-    res.status(500).json({ message: 'Error updating bus' });
+    console.error("Error updating bus:", err);
+    res.status(500).json({ message: "Error updating bus" });
   }
 });
 
