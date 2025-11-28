@@ -9,6 +9,8 @@ import UserView from './Components/Admin/UserView/UserView';
 import BusTypeView from './Components/Admin/BusTypeView/BusTypeView';
 import BusView from './Components/Admin/BusView/BusView';
 import RoutesView from './Components/Admin/Routes/RoutesView';
+import Schedule from './Components/Admin/ScheduleView/ScheduleView';
+import ScheduleView from './Components/Admin/ScheduleView/ScheduleView';
 
 function AppContent() {
   const location = useLocation();
@@ -77,6 +79,14 @@ function AppContent() {
           element={
             <div>
               <RoutesView />
+            </div>
+          }
+        />
+      <Route
+          path="/schedule"
+          element={
+            <div>
+              <ScheduleView />
             </div>
           }
         />

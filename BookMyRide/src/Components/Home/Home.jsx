@@ -45,6 +45,8 @@ const Home = () => {
         return 'Buses';
       case '/routes':
         return 'Routes';
+      case '/schedule':
+        return 'Schedule';
       case '/':
       case '/home':
         return 'Welcome to EasyBus';
@@ -57,7 +59,8 @@ const Home = () => {
     { text: 'Users', path: '/users' },
     { text: 'Bus Types', path: '/bus-type' },
     { text: 'Buses', path: '/bus' },
-    { text: 'Routes', path: '/routes' }
+    { text: 'Routes', path: '/routes' },
+    { text: 'Schedule', path: '/schedule' }
   ];
 
   const list = (

@@ -10,6 +10,7 @@ const path = require("path");
 const db = require("./Connection/DBConnection");
 const busmodel = require('./model/bus');
 const routesmodel = require('./model/routes');
+const scheduleModel = require('./model/schedule')
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json());
 app.use(cors());
@@ -295,6 +296,78 @@ app.put('/update-route/:id', async (req, res) => {
     res.status(500).json({ message: 'Error updating route' });
   }
 });
+
+app.get('/schedules', async (req, res) => {
+  try {
+    const schedules = await scheduleModel.find()
+      .populate("busId")
+      .populate("routeId");
+
+    res.status(200).json({
+      message: 'Success',
+      schedules
+    });
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+
+app.post('/add-schedule', async (req, res) => {
+  try {
+    const newSchedule = new scheduleModel(req.body);
+
+    await newSchedule.save();
+    res.status(200).send('Schedule saved successfully');
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Error saving schedule');
+  }
+});
+
+
+app.put('/update-schedule/:id', async (req, res) => {
+  try {
+    const updatedSchedule = await scheduleModel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: 'Schedule updated successfully',
+      updatedSchedule
+    });
+
+  } catch (error) {
+    console.error('Error updating schedule:', error);
+    res.status(500).json({ message: 'Error updating schedule' });
+  }
+});
+
+
+app.put('/remove-schedule/:id', async (req, res) => {
+  try {
+    const deletedSchedule = await scheduleModel.findByIdAndUpdate(
+      req.params.id,
+      { status: 'Inactive' },
+      { new: true }
+    );
+
+    res.status(200).json({
+      message: 'Schedule marked as inactive',
+      deletedSchedule
+    });
+
+  } catch (error) {
+    console.error('Error removing schedule:', error);
+    res.status(500).json({ message: 'Error removing schedule' });
+  }
+});
+
 
 
 
