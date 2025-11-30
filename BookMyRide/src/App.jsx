@@ -9,8 +9,13 @@ import UserView from './Components/Admin/UserView/UserView';
 import BusTypeView from './Components/Admin/BusTypeView/BusTypeView';
 import BusView from './Components/Admin/BusView/BusView';
 import RoutesView from './Components/Admin/Routes/RoutesView';
-import Schedule from './Components/Admin/ScheduleView/ScheduleView';
 import ScheduleView from './Components/Admin/ScheduleView/ScheduleView';
+import SeatBooking from './Components/Booking/BookSeat/BookSeat';
+import UserPage from './Components/User/Userpage';
+import Userlogin from './Components/User/Userlogin';
+import Userpage from './Components/User/Userpage';
+
+
 
 function AppContent() {
   const location = useLocation();
@@ -90,8 +95,39 @@ function AppContent() {
             </div>
           }
         />
+        <Route
+          path="/book"
+          element={
+            <div>
+              <SeatBooking />
+            </div>
+          }
+        />
+        <Route 
+        path="/Userpage"
+        element={
+          <div>
+            <UserPage/>
+          </div>
+        
+        }
+        />
+        <Route 
+        path="/Userlogin"
+         element={
+          <div>
+          <Userlogin/>
+          </div>
+          } 
+          />
+
+      <Route path="/user-login" element={<Userlogin />} />
+
+
+
       </Routes>
     </div>
+    
   );
 }
 

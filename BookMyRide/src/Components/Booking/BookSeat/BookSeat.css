@@ -1,0 +1,79 @@
+.volvo-page {
+  text-align: center;
+  font-family: Arial;
+}
+
+.title {
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.volvo-bus {
+  background: #f1f1f1;
+  padding: 20px;
+  width: 330px;
+  margin: auto;
+  border-radius: 20px;
+  border: 3px solid #ccc;
+}
+
+.row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+
+.seat {
+  width: 38px;
+  height: 38px;
+  background: #d2e7ff;
+  border: 2px solid #6fa8dc;
+  margin: 3px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: 0.2s;
+  font-weight: bold;
+}
+
+.seat.selected {
+  background: #4caf50;
+  border-color: #2e7d32;
+  color: white;
+}
+
+.driver {
+  width: 45px;
+  height: 45px;
+  background: #ffcc80;
+  border: 2px solid #ef6c00;
+  margin: 3px;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: black;
+}
+
+.aisle {
+  width: 30px;
+}
+
+.book-btn {
+  margin-top: 20px;
+  padding: 12px 22px;
+  background-color: #1976d2;
+  color: white;
+  border: none;
+  font-size: 18px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.book-btn:hover {
+  background-color: #1259a1;
+}
