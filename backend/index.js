@@ -12,6 +12,7 @@ const db = require("./Connection/DBConnection");
 const busmodel = require('./model/bus');
 const routesmodel = require('./model/routes');
 const scheduleModel = require('./model/schedule')
+const bookingModel = require('./model/booking')
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json());
 app.use(cors());
@@ -26,7 +27,6 @@ app.get('/', (request, response) => {
 
 app.post('/new', (request, response) => {
   request.body.role = 'User';
-  console.log(request.body)
 
   const newRecord = new loginmodel(request.body);
 
@@ -236,7 +236,6 @@ app.get('/buses', async (request, response) => {
 // ADD BUS (WITH IMAGE)
 // ======================================================
 app.post('/add-bus', upload.single("image"), (request, response) => {
-console.log(request.file)
   const newRecord = new busmodel({
     ...request.body,
     image: request.file ? request.file.filename : null
@@ -277,7 +276,6 @@ app.put('/remove-bus/:id', async (req, res) => {
 app.put('/update-bus/:id', upload.single("image"), async (req, res) => {
   try {
     const updateData = { ...req.body };
-    console.log(req.file)
     // Only update image if a new one is uploaded
     if (req.file) {
       updateData.image = req.file.filename;
@@ -417,6 +415,75 @@ app.put('/remove-schedule/:id', async (req, res) => {
     res.status(500).json({ message: 'Error removing schedule' });
   }
 });
+app.get("/search-buses", async (req, res) => {
+  try {
+    const { from, to } = req.query;
+
+    // 1. Find route
+    const route = await routesmodel.findOne({
+      sourceLocation: from,
+      destinationLocation: to,
+      status: "Active",
+    });
+
+    if (!route) {
+      return res.status(404).json({ message: "No route found" });
+    }
+
+    // 2. Find schedules for route
+    const schedules = await scheduleModel
+      .find({
+        routeId: route._id,
+        status: "Active",
+      })
+      .populate("busId") // get bus details
+      .populate("routeId");
+
+    res.status(200).json(schedules);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Search failed" });
+  }
+});
+
+app.get("/bus/:id", async (req, res) => {
+  try {
+    const busId = req.params.id;
+    const schedule = await scheduleModel.findOne({ busId, status: "Active" })
+      .populate("busId")
+      .populate("routeId");
+    if (!schedule) return res.status(404).json({ message: "Bus not found" });
+    res.json(schedule);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error fetching bus details" });
+  }
+});
+
+// Save booking (after payment)
+app.post("/book-seat", async (req, res) => {
+  try {
+    const { userId, busId, routeId, seats, fare } = req.body;
+
+    const newBooking = new bookingModel({
+      userId,
+      busId,
+      routeId,
+      seats,
+      fare,
+      status: "Confirmed",
+    });
+
+    await newBooking.save();
+    res.status(200).json({ message: "Booking confirmed", booking: newBooking });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error saving booking" });
+  }
+});
+
+
+
 
 
 

@@ -1,9 +1,15 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import axios from "axios";
 import "./BookSeat.css";
 
-const BookSeat = () => {
+const BookSeat = ({ userId }) => {
+  const { id } = useParams(); // busId from URL
   const navigate = useNavigate();
+
+  const [busDetails, setBusDetails] = useState(null);
+  const [selectedSeats, setSelectedSeats] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const seatLayout = [
     ["D", "", "1", "2"],
@@ -18,35 +24,61 @@ const BookSeat = () => {
     ["", "", "", ""],
   ];
 
-  const [selectedSeats, setSelectedSeats] = useState([]);
+  useEffect(() => {
+    const fetchBus = async () => {
+      try {
+        const res = await axios.get(`http://localhost:3005/bus/${id}`);
+        setBusDetails(res.data);
+        setLoading(false);
+      } catch (err) {
+        console.error(err);
+        setLoading(false);
+      }
+    };
+    fetchBus();
+  }, [id]);
 
   const toggleSeat = (seat) => {
     if (!seat || seat === "D") return;
-
     setSelectedSeats((prev) =>
-      prev.includes(seat)
-        ? prev.filter((s) => s !== seat)
-        : [...prev, seat]
+      prev.includes(seat) ? prev.filter((s) => s !== seat) : [...prev, seat]
     );
   };
 
-  const confirmBooking = () => {
+  const confirmBooking = async () => {
     if (selectedSeats.length === 0) {
       alert("Please select at least one seat");
       return;
     }
 
-    navigate("/payment", {
+    try {
+      navigate("/payment", {
       state: {
+        userId,
+        busId: busDetails.busId._id,
+        busName:busDetails.busId.name,
+        routeId: busDetails.routeId._id,
         seats: selectedSeats,
-        amount: selectedSeats.length * 500, // ₹500 per seat
+        amount: selectedSeats.length * busDetails.fare,
       },
     });
+
+    } catch (err) {
+      console.error(err);
+      alert("Booking failed, try again");
+    }
   };
+
+  if (loading) return <p>Loading bus details...</p>;
+  if (!busDetails) return <p>Bus details not found!</p>;
 
   return (
     <div className="volvo-page">
-      <h2 className="title">Seat Booking</h2>
+      <h2 className="title">{busDetails.busId.name} - Seat Booking</h2>
+      <p>
+        Route: {busDetails.routeId.sourceLocation} → {busDetails.routeId.destinationLocation} <br/>
+        Fare per seat: ₹{busDetails.fare}
+      </p>
 
       <div className="volvo-bus">
         {seatLayout.map((row, rowIndex) => (
@@ -70,6 +102,7 @@ const BookSeat = () => {
         ))}
       </div>
 
+      <p>Total Fare: ₹{selectedSeats.length * busDetails.fare}</p>
       <button className="book-btn" onClick={confirmBooking}>
         Confirm Booking
       </button>

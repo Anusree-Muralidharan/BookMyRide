@@ -22,7 +22,8 @@ const Home = () => {
 
   const location = useLocation();
 
-  const showGlobalBg = location.pathname === '/' || location.pathname === '/home' ;
+  const showGlobalBg = location.pathname === '/' || location.pathname === '/home'  ;
+  const hideBg =location.pathname === '/user'
 
   const toggleDrawer = (value) => () => {
     setOpen(value);
@@ -49,6 +50,8 @@ const Home = () => {
         return 'Schedule';
       case '/book':
         return 'Book';
+      case '/user':
+        return '';
       case '/':
       case '/home':
         return 'Welcome to EasyBus';
@@ -67,16 +70,19 @@ const Home = () => {
   ];
 
   const list = (
+    
     <Box
       sx={{ width: 250 }}
       role="presentation"
       onClick={toggleDrawer(false)}
       onKeyDown={toggleDrawer(false)}
     >
+    
       <Typography variant="h6" sx={{ p: 2 }} className=''>
         EasyBus
       </Typography>
       <Divider />
+      {!hideBg && (
       <List>
         {menuItems.map(item => (
           <ListItem key={item.text} disablePadding className='home'>
@@ -86,6 +92,7 @@ const Home = () => {
           </ListItem>
         ))}
       </List>
+      )}
     </Box>
   );
 
@@ -123,10 +130,11 @@ const Home = () => {
           )}
         </Toolbar>
       </AppBar>
-
+{!hideBg && (
       <Drawer anchor="left" open={open} onClose={toggleDrawer(false)}>
         {list}
       </Drawer>
+)}
     </Box>
   );
 }

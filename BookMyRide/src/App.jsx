@@ -13,9 +13,9 @@ import ScheduleView from './Components/Admin/ScheduleView/ScheduleView';
 import SeatBooking from './Components/Booking/BookSeat/BookSeat';
 import UserPage from './Components/User/Userpage';
 import Userlogin from './Components/User/Userlogin';
-import Userpage from './Components/User/Userpage';
 import Payment from './Components/Booking/Payment/Payment';
 import Receipt from './Components/Booking/Receipt/Receipt';
+import UserDashboard from './Components/Booking/UserDashboard/UserDashboard';
 
 function AppContent() {
   const location = useLocation();
@@ -96,7 +96,7 @@ function AppContent() {
           }
         />
         <Route
-          path="/book"
+          path="/book/:id"
           element={
             <div>
               <SeatBooking />
@@ -105,6 +105,7 @@ function AppContent() {
         />
          <Route path="/payment" element={<Payment />} />
          <Route path="/receipt" element={<Receipt />} />
+         <Route path="/user" element={<UserDashboard />} />
         <Route 
         path="/Userpage"
         element={
