@@ -16,7 +16,7 @@ const banners = [banner1,banner2,banner3,banner4];
 const UserDashboard = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const navigate = useNavigate(); 
-
+  const today = new Date().toISOString().split("T")[0];
   // Auto slider
   useEffect(() => {
     const interval = setInterval(() => {
@@ -108,7 +108,7 @@ const handleSearch = async (e) => {
             required
           />
 
-          <input type="date" required />
+          <input type="date" required min={today}  />
           <button type="submit" onClick={handleSearch}>
             Search Buses
           </button>

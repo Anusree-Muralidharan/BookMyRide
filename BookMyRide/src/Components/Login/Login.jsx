@@ -31,9 +31,14 @@ export default function Login() {
     axios.post('http://localhost:3005/login',payload)
     .then(response => {
       console.log(response)
+      localStorage.setItem('id',JSON.stringify(response.data.user._id))
+      localStorage.setItem('role',JSON.stringify(response.data.user.role))
       localStorage.setItem('userDetails',JSON.stringify(payload));
       alert('Login Completed Successfully!');
-      navigate('/home');
+      if(response.data.user.role === 'Admin')
+       navigate('/home');
+      else
+       navigate('/user'); 
        window.location.reload();
     })
     .catch(err => {

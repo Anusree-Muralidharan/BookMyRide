@@ -6,14 +6,14 @@ const Receipt = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // Get paymentIntent and bookedSeats from state
-  const { paymentIntent, bookedSeats } = location.state || {};
+  // Get paymentId and booking from state
+  const { booking, paymentId } = location.state || {};
 
-  if (!paymentIntent) {
+  if (!paymentId) {
     return (
       <div className="receipt-container">
         <h2>No Payment Data</h2>
-        <button onClick={() => navigate("/")}>Go Home</button>
+        <button onClick={() => navigate("/user")}>Go Home</button>
       </div>
     );
   }
@@ -24,23 +24,23 @@ const Receipt = () => {
 
       <div className="receipt-details">
         <p>
-          <strong>Transaction ID:</strong> {paymentIntent.id}
+          <strong>Transaction ID:</strong> {paymentId.id}
         </p>
         <p>
-          <strong>Status:</strong> {paymentIntent.status}
+          <strong>Status:</strong> Completed
         </p>
         <p>
-          <strong>Amount Paid:</strong> ₹{(paymentIntent.amount / 100).toFixed(2)}
+          <strong>Amount Paid:</strong> ₹{(booking.amount / 100).toFixed(2)}
         </p>
         <p>
-          <strong>Booked Seats:</strong> {bookedSeats ? bookedSeats.join(", ") : "N/A"}
+          <strong>Booked Seats:</strong> {booking ? booking.seats.join(", ") : "N/A"}
         </p>
         <p>
           <strong>Payment Method:</strong> Card
         </p>
       </div>
 
-      <button onClick={() => navigate("/")}>Back to Home</button>
+      <button onClick={() => navigate("/user")}>Back to Home</button>
     </div>
   );
 };

@@ -39,7 +39,7 @@ const CheckoutForm = () => {
 
       // Save booking to backend
       const res = await axios.post("http://localhost:3005/book-seat", {
-        userId: bookingDetails.userId,
+        userId: localStorage.getItem('id') ? JSON.parse(localStorage.getItem('id') ):'',
         busId: bookingDetails.busId,
         busName: bookingDetails.busName,
         routeId: bookingDetails.routeId,
@@ -48,13 +48,13 @@ const CheckoutForm = () => {
         paymentId: paymentMethod.id, // optional: store Stripe payment ID
       });
 
-      alert("Booking saved successfully!");
+    //   alert("Booking saved successfully!");
 
       // Redirect to receipt/confirmation page
       navigate("/receipt", {
         state: {
-          booking: res.data,
-          paymentId: paymentMethod.id,
+          booking: bookingDetails,
+          paymentId: paymentMethod,
         },
       });
     } catch (err) {

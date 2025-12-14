@@ -23,7 +23,7 @@ const Home = () => {
   const location = useLocation();
 
   const showGlobalBg = location.pathname === '/' || location.pathname === '/home'  ;
-  const hideBg =location.pathname === '/user'
+  const hideBg = localStorage.getItem('role') && JSON.parse(localStorage.getItem('role')).toLowerCase() === 'user'
 
   const toggleDrawer = (value) => () => {
     setOpen(value);
@@ -31,11 +31,16 @@ const Home = () => {
   
   const logout = () => {
     localStorage.removeItem('userDetails')
+    localStorage.removeItem('id');
+    localStorage.removeItem('role');
     navigate('/login')
   }
 
   const getHeaderText = () => {
   const path = location.pathname;
+  if(hideBg) {
+    return '';
+  }
 
     switch (path) {
       case '/users':
@@ -51,6 +56,7 @@ const Home = () => {
       case '/book':
         return 'Book';
       case '/user':
+      
         return '';
       case '/':
       case '/home':
@@ -59,6 +65,7 @@ const Home = () => {
         return 'Welcome to EasyBus';
     }
   };
+  
 
   const menuItems = [
     { text: 'Users', path: '/users' },
@@ -66,7 +73,6 @@ const Home = () => {
     { text: 'Buses', path: '/bus' },
     { text: 'Routes', path: '/routes' },
     { text: 'Schedule', path: '/schedule' },
-    { text: 'Book', path: '/book' },
   ];
 
   const list = (

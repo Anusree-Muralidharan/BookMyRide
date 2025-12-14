@@ -11,19 +11,6 @@ const BookSeat = ({ userId }) => {
   const [selectedSeats, setSelectedSeats] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  const seatLayout = [
-    ["D", "", "1", "2"],
-    ["", "", "", ""],
-    ["3", "4", "", "5", "6"],
-    ["7", "8", "", "9", "10"],
-    ["11", "12", "", "13", "14"],
-    ["15", "16", "", "17", "18"],
-    ["19", "20", "", "21", "22"],
-    ["23", "24", "", "25", "26"],
-    ["27", "28", "", "29", "30"],
-    ["", "", "", ""],
-  ];
-
   useEffect(() => {
     const fetchBus = async () => {
       try {
@@ -39,44 +26,67 @@ const BookSeat = ({ userId }) => {
   }, [id]);
 
   const toggleSeat = (seat) => {
-    if (!seat || seat === "D") return;
+    if (!seat) return;
     setSelectedSeats((prev) =>
       prev.includes(seat) ? prev.filter((s) => s !== seat) : [...prev, seat]
     );
   };
 
-  const confirmBooking = async () => {
+  const confirmBooking = () => {
     if (selectedSeats.length === 0) {
       alert("Please select at least one seat");
       return;
     }
 
-    try {
-      navigate("/payment", {
+    navigate("/payment", {
       state: {
         userId,
         busId: busDetails.busId._id,
-        busName:busDetails.busId.name,
+        busName: busDetails.busId.name,
         routeId: busDetails.routeId._id,
         seats: selectedSeats,
         amount: selectedSeats.length * busDetails.fare,
       },
     });
-
-    } catch (err) {
-      console.error(err);
-      alert("Booking failed, try again");
-    }
   };
 
   if (loading) return <p>Loading bus details...</p>;
   if (!busDetails) return <p>Bus details not found!</p>;
 
+  const totalSeats = busDetails.busId.totalSeats || 40; // total seats from bus data
+const seatNumbers = Array.from({ length: totalSeats }, (_, i) => (i + 1).toString());
+
+// Generate dynamic layout
+const generateSeatLayout = () => {
+  const layout = [];
+  let index = 0;
+
+  // Front row: driver (left) + first passenger seat + empty space
+  layout.push(["D","" || "","", ""]);
+
+  // Remaining rows: 2 left + 2 right with aisle
+  while (index < seatNumbers.length) {
+    layout.push([
+      seatNumbers[index++] || "",
+      seatNumbers[index++] || "",
+      "",
+      seatNumbers[index++] || "",
+      seatNumbers[index++] || "",
+    ]);
+  }
+
+  return layout;
+};
+
+const seatLayout = generateSeatLayout();
+
+
   return (
     <div className="volvo-page">
       <h2 className="title">{busDetails.busId.name} - Seat Booking</h2>
       <p>
-        Route: {busDetails.routeId.sourceLocation} → {busDetails.routeId.destinationLocation} <br/>
+        Route: {busDetails.routeId.sourceLocation} → {busDetails.routeId.destinationLocation} <br />
+        Distance: {busDetails.routeId.distance} km <br />
         Fare per seat: ₹{busDetails.fare}
       </p>
 
