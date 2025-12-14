@@ -72,6 +72,7 @@
   font-size: 18px;
   border-radius: 10px;
   cursor: pointer;
+  width: 40%;
 }
 
 .book-btn:hover {

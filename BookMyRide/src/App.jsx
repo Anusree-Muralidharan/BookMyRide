@@ -14,8 +14,8 @@ import SeatBooking from './Components/Booking/BookSeat/BookSeat';
 import UserPage from './Components/User/Userpage';
 import Userlogin from './Components/User/Userlogin';
 import Userpage from './Components/User/Userpage';
-
-
+import Payment from './Components/Booking/Payment/Payment';
+import Receipt from './Components/Booking/Receipt/Receipt';
 
 function AppContent() {
   const location = useLocation();
@@ -103,6 +103,8 @@ function AppContent() {
             </div>
           }
         />
+         <Route path="/payment" element={<Payment />} />
+         <Route path="/receipt" element={<Receipt />} />
         <Route 
         path="/Userpage"
         element={

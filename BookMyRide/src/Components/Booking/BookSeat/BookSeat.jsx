@@ -1,11 +1,13 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./BookSeat.css";
 
 const BookSeat = () => {
-  // Volvo / KSRTC Bus Seat Layout
+  const navigate = useNavigate();
+
   const seatLayout = [
-    ["D", "", "1", "2"],  // Driver seat + 1st row
-    ["", "", "", ""],     // Door area
+    ["D", "", "1", "2"],
+    ["", "", "", ""],
     ["3", "4", "", "5", "6"],
     ["7", "8", "", "9", "10"],
     ["11", "12", "", "13", "14"],
@@ -13,13 +15,13 @@ const BookSeat = () => {
     ["19", "20", "", "21", "22"],
     ["23", "24", "", "25", "26"],
     ["27", "28", "", "29", "30"],
-    ["", "", "", ""],     // Back area
+    ["", "", "", ""],
   ];
 
   const [selectedSeats, setSelectedSeats] = useState([]);
 
   const toggleSeat = (seat) => {
-    if (!seat || seat === "D") return; // ignore aisle + driver
+    if (!seat || seat === "D") return;
 
     setSelectedSeats((prev) =>
       prev.includes(seat)
@@ -28,14 +30,23 @@ const BookSeat = () => {
     );
   };
 
-  const bookSeats = () => {
-    alert("Booked Seats: " + selectedSeats.join(", "));
+  const confirmBooking = () => {
+    if (selectedSeats.length === 0) {
+      alert("Please select at least one seat");
+      return;
+    }
+
+    navigate("/payment", {
+      state: {
+        seats: selectedSeats,
+        amount: selectedSeats.length * 500, // ₹500 per seat
+      },
+    });
   };
 
   return (
     <div className="volvo-page">
-
-      <h2 className="title"> Seat Booking</h2>
+      <h2 className="title">Seat Booking</h2>
 
       <div className="volvo-bus">
         {seatLayout.map((row, rowIndex) => (
@@ -59,7 +70,7 @@ const BookSeat = () => {
         ))}
       </div>
 
-      <button className="book-btn" onClick={bookSeats}>
+      <button className="book-btn" onClick={confirmBooking}>
         Confirm Booking
       </button>
     </div>

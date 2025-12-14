@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import './BusView.css';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
-import IconButton from '@mui/material/IconButton';
-import Tooltip from '@mui/material/Tooltip';
-import Button from '@mui/material/Button';
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import "./BusView.css";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
+import IconButton from "@mui/material/IconButton";
+import Tooltip from "@mui/material/Tooltip";
+import Button from "@mui/material/Button";
 import {
   Dialog,
   DialogTitle,
@@ -13,8 +13,8 @@ import {
   DialogActions,
   TextField,
   Select,
-  MenuItem
-} from '@mui/material';
+  MenuItem,
+} from "@mui/material";
 
 const BusView = () => {
   const [buses, setBuses] = useState([]);
@@ -22,33 +22,36 @@ const BusView = () => {
   const [openAdd, setOpenAdd] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
   const [newBus, setNewBus] = useState({
-    name: '',
-    typeId: '',
-    totalSeats: '',
-    vehicleNo: '',
-    rc: '',
-    status: 'Active',
-    image: null
+    name: "",
+    typeId: "",
+    totalSeats: "",
+    vehicleNo: "",
+    rc: "",
+    status: "Active",
+    image: null,
   });
-
   const [selectedBus, setSelectedBus] = useState(null);
   const [errors, setErrors] = useState({});
 
   // Fetch buses
   const fetchBuses = () => {
-    axios.get('http://localhost:3005/buses')
-      .then(res => setBuses(res.data.buses))
-      .catch(err => console.error('Error fetching buses:', err));
+    axios
+      .get("http://localhost:3005/buses")
+      .then((res) => setBuses(res.data.buses))
+      .catch((err) => console.error("Error fetching buses:", err));
   };
 
   // Fetch bus types
   const fetchBusTypes = () => {
-    axios.get('http://localhost:3005/bus-types')
-      .then(res => {
-        const activeTypes = res.data.busTypes.filter(type => type.status === 'Active');
+    axios
+      .get("http://localhost:3005/bus-types")
+      .then((res) => {
+        const activeTypes = res.data.busTypes.filter(
+          (type) => type.status === "Active"
+        );
         setBusTypes(activeTypes);
       })
-      .catch(err => console.error('Error fetching bus types', err));
+      .catch((err) => console.error("Error fetching bus types", err));
   };
 
   useEffect(() => {
@@ -59,32 +62,33 @@ const BusView = () => {
   // Validation
   const validate = (bus) => {
     const newErrors = {};
-    if (!bus.name?.trim()) newErrors.name = 'Bus name is required';
-    if (!bus.typeId) newErrors.typeId = 'Bus type is required';
+    if (!bus.name?.trim()) newErrors.name = "Bus name is required";
+    if (!bus.typeId) newErrors.typeId = "Bus type is required";
     if (!bus.totalSeats || isNaN(bus.totalSeats) || bus.totalSeats <= 0)
-      newErrors.totalSeats = 'Total seats must be a positive number';
-    if (!bus.vehicleNo?.trim()) newErrors.vehicleNo = 'Vehicle number is required';
-    if (!bus.rc?.trim()) newErrors.rc = 'RC is required';
+      newErrors.totalSeats = "Total seats must be a positive number";
+    if (!bus.vehicleNo?.trim()) newErrors.vehicleNo = "Vehicle number is required";
+    if (!bus.rc?.trim()) newErrors.rc = "RC is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  // Add Bus
+  // ------------------ Add Bus ------------------
   const handleOpenAdd = () => {
     setErrors({});
     setOpenAdd(true);
   };
+
   const handleCloseAdd = () => {
     setOpenAdd(false);
     setNewBus({
-      name: '',
-      typeId: '',
-      totalSeats: '',
-      vehicleNo: '',
-      rc: '',
-      status: 'Active',
-      image: null
+      name: "",
+      typeId: "",
+      totalSeats: "",
+      vehicleNo: "",
+      rc: "",
+      status: "Active",
+      image: null,
     });
   };
 
@@ -96,21 +100,22 @@ const BusView = () => {
       formData.append(key, newBus[key]);
     }
 
-    axios.post("http://localhost:3005/add-bus", formData, {
-      headers: { "Content-Type": "multipart/form-data" }
-    })
+    axios
+      .post("http://localhost:3005/add-bus", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      })
       .then(() => {
-        alert('Bus added successfully');
+        alert("Bus added successfully");
         handleCloseAdd();
         fetchBuses();
       })
-      .catch(err => {
-        console.error('Add bus failed', err);
-        alert('Failed to add bus');
+      .catch((err) => {
+        console.error("Add bus failed", err);
+        alert("Failed to add bus");
       });
   };
 
-  // Edit Bus
+  // ------------------ Edit Bus ------------------
   const handleEdit = (bus) => {
     setSelectedBus({ ...bus, image: null });
     setErrors({});
@@ -129,48 +134,58 @@ const BusView = () => {
     for (let key in selectedBus) {
       if (key !== "image") formData.append(key, selectedBus[key]);
     }
+    if (selectedBus.image) formData.append("image", selectedBus.image);
 
-    axios.put(`http://localhost:3005/update-bus/${selectedBus._id}`, formData, {
-      headers: { "Content-Type": "multipart/form-data" }
-    })
+    axios
+      .put(
+        `http://localhost:3005/update-bus/${selectedBus._id}`,
+        formData,
+        {
+          headers: { "Content-Type": "multipart/form-data" },
+        }
+      )
       .then(() => {
-        alert('Bus updated successfully');
+        alert("Bus updated successfully");
         handleCloseEdit();
         fetchBuses();
       })
-      .catch(err => {
-        console.error('Update failed', err);
-        alert('Failed to update bus');
+      .catch((err) => {
+        console.error("Update failed", err);
+        alert("Failed to update bus");
       });
   };
 
+  // ------------------ Delete / Inactivate Bus ------------------
   const handleDelete = (id) => {
-    axios.put(`http://localhost:3005/remove-bus/${id}`)
+    axios
+      .put(`http://localhost:3005/remove-bus/${id}`)
       .then(() => {
-        alert('Bus status updated to Inactive');
-        setBuses(prev =>
-          prev.map(bus => bus._id === id ? { ...bus, status: 'Inactive' } : bus)
+        alert("Bus status updated to Inactive");
+        setBuses((prev) =>
+          prev.map((bus) =>
+            bus._id === id ? { ...bus, status: "Inactive" } : bus
+          )
         );
       })
-      .catch(err => {
-        console.error('Deactivate failed', err);
-        alert('Failed to update bus status');
+      .catch((err) => {
+        console.error("Deactivate failed", err);
+        alert("Failed to update bus status");
       });
   };
 
+  // ------------------ JSX ------------------
   return (
     <div className="bus-container">
-      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 16 }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", marginBottom: 16 }}>
         <Button variant="contained" onClick={handleOpenAdd}>
-          Add
+          Add Bus
         </Button>
       </div>
 
       <table className="bus-table">
         <thead>
           <tr>
-            <th>Image</th>
-            <th>Name</th>
+            <th>Bus</th>
             <th>Type</th>
             <th>Total Seats</th>
             <th>Vehicle No</th>
@@ -182,20 +197,37 @@ const BusView = () => {
 
         <tbody>
           {buses.length > 0 ? (
-            buses.map((bus, idx) => (
-              <tr key={idx}>
-                <td>
+            buses.map((bus) => (
+              <tr key={bus._id}>
+                {/* Image + Name */}
+                <td style={{ display: "flex", alignItems: "center", gap: "10px" }}>
                   {bus.image ? (
                     <img
-                      src={`http://localhost:3005/uploads/${bus.image}`}
+                      src={`http://localhost:3005/upload/${bus.image}`}
                       alt="bus"
-                      style={{ width: 60, height: 60, borderRadius: 6 }}
+                      style={{ width: 60, height: 60, borderRadius: 6, objectFit: "cover" }}
                     />
-                  ) : "No Image"}
+                  ) : (
+                    <div
+                      style={{
+                        width: 60,
+                        height: 60,
+                        borderRadius: 6,
+                        backgroundColor: "#eee",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: 12,
+                        color: "#999",
+                      }}
+                    >
+                      No Image
+                    </div>
+                  )}
+                  <span>{bus.name}</span>
                 </td>
 
-                <td>{bus.name}</td>
-                <td>{busTypes.find(bt => bt._id === bus.typeId)?.type}</td>
+                <td>{busTypes.find((bt) => bt._id === bus.typeId)?.type}</td>
                 <td>{bus.totalSeats}</td>
                 <td>{bus.vehicleNo}</td>
                 <td>{bus.rc}</td>
@@ -207,7 +239,6 @@ const BusView = () => {
                       <EditIcon />
                     </IconButton>
                   </Tooltip>
-
                   <Tooltip title="Delete">
                     <IconButton color="error" onClick={() => handleDelete(bus._id)}>
                       <DeleteIcon />
@@ -218,17 +249,18 @@ const BusView = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="8" style={{ textAlign: "center" }}>No buses found.</td>
+              <td colSpan={7} style={{ textAlign: "center" }}>
+                No buses found.
+              </td>
             </tr>
           )}
         </tbody>
       </table>
 
-      {/* ADD DIALOG */}
+      {/* ------------------ Add Bus Dialog ------------------ */}
       <Dialog open={openAdd} onClose={handleCloseAdd}>
         <DialogTitle>Add Bus</DialogTitle>
         <DialogContent>
-
           <TextField
             label="Name"
             fullWidth
@@ -238,7 +270,6 @@ const BusView = () => {
             error={!!errors.name}
             helperText={errors.name}
           />
-
           <Select
             fullWidth
             value={newBus.typeId}
@@ -246,24 +277,30 @@ const BusView = () => {
             displayEmpty
             margin="normal"
           >
-            <MenuItem value="" disabled>Bus Type</MenuItem>
-            {busTypes.map(type => (
-              <MenuItem key={type._id} value={type._id}>{type.type}</MenuItem>
+            <MenuItem value="" disabled>
+              Bus Type
+            </MenuItem>
+            {busTypes.map((type) => (
+              <MenuItem key={type._id} value={type._id}>
+                {type.type}
+              </MenuItem>
             ))}
           </Select>
-          {errors.typeId && <p style={{ color: "red", fontSize: 12 }}>{errors.typeId}</p>}
-
+          {errors.typeId && (
+            <p style={{ color: "red", fontSize: 12 }}>{errors.typeId}</p>
+          )}
           <TextField
             label="Total Seats"
             fullWidth
             margin="normal"
             type="number"
             value={newBus.totalSeats}
-            onChange={(e) => setNewBus({ ...newBus, totalSeats: parseInt(e.target.value) })}
+            onChange={(e) =>
+              setNewBus({ ...newBus, totalSeats: parseInt(e.target.value) })
+            }
             error={!!errors.totalSeats}
             helperText={errors.totalSeats}
           />
-
           <TextField
             label="Vehicle No"
             fullWidth
@@ -273,7 +310,6 @@ const BusView = () => {
             error={!!errors.vehicleNo}
             helperText={errors.vehicleNo}
           />
-
           <TextField
             label="RC"
             fullWidth
@@ -283,7 +319,6 @@ const BusView = () => {
             error={!!errors.rc}
             helperText={errors.rc}
           />
-
           <Select
             fullWidth
             value={newBus.status}
@@ -293,17 +328,12 @@ const BusView = () => {
             <MenuItem value="Active">Active</MenuItem>
             <MenuItem value="Inactive">Inactive</MenuItem>
           </Select>
-
-          {/* IMAGE UPLOAD */}
           <input
             type="file"
             accept="image/*"
             style={{ marginTop: 16 }}
-            onChange={(e) =>
-              setNewBus({ ...newBus, image: e.target.files[0] })
-            }
+            onChange={(e) => setNewBus({ ...newBus, image: e.target.files[0] })}
           />
-
           {newBus.image && (
             <img
               src={URL.createObjectURL(newBus.image)}
@@ -311,16 +341,18 @@ const BusView = () => {
               style={{ width: 100, height: 100, marginTop: 10, borderRadius: 8 }}
             />
           )}
-
         </DialogContent>
-
         <DialogActions>
-          <Button onClick={handleCloseAdd} color="secondary">Cancel</Button>
-          <Button onClick={handleAdd} variant="contained">Add</Button>
+          <Button onClick={handleCloseAdd} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleAdd} variant="contained">
+            Add
+          </Button>
         </DialogActions>
       </Dialog>
 
-      {/* EDIT DIALOG */}
+      {/* ------------------ Edit Bus Dialog ------------------ */}
       <Dialog open={openEdit} onClose={handleCloseEdit}>
         <DialogTitle>Edit Bus</DialogTitle>
         <DialogContent>
@@ -331,24 +363,29 @@ const BusView = () => {
                 fullWidth
                 margin="normal"
                 value={selectedBus.name}
-                onChange={(e) => setSelectedBus({ ...selectedBus, name: e.target.value })}
+                onChange={(e) =>
+                  setSelectedBus({ ...selectedBus, name: e.target.value })
+                }
                 error={!!errors.name}
                 helperText={errors.name}
               />
-
               <Select
                 fullWidth
                 value={selectedBus.typeId}
-                onChange={(e) => setSelectedBus({ ...selectedBus, typeId: e.target.value })}
+                onChange={(e) =>
+                  setSelectedBus({ ...selectedBus, typeId: e.target.value })
+                }
                 margin="normal"
               >
-                {busTypes.map(type => (
-                  <MenuItem key={type._id} value={type._id}>{type.type}</MenuItem>
+                {busTypes.map((type) => (
+                  <MenuItem key={type._id} value={type._id}>
+                    {type.type}
+                  </MenuItem>
                 ))}
               </Select>
-
-              {errors.typeId && <p style={{ color: "red", fontSize: 12 }}>{errors.typeId}</p>}
-
+              {errors.typeId && (
+                <p style={{ color: "red", fontSize: 12 }}>{errors.typeId}</p>
+              )}
               <TextField
                 label="Total Seats"
                 fullWidth
@@ -356,12 +393,14 @@ const BusView = () => {
                 type="number"
                 value={selectedBus.totalSeats}
                 onChange={(e) =>
-                  setSelectedBus({ ...selectedBus, totalSeats: parseInt(e.target.value) })
+                  setSelectedBus({
+                    ...selectedBus,
+                    totalSeats: parseInt(e.target.value),
+                  })
                 }
                 error={!!errors.totalSeats}
                 helperText={errors.totalSeats}
               />
-
               <TextField
                 label="Vehicle No"
                 fullWidth
@@ -373,7 +412,6 @@ const BusView = () => {
                 error={!!errors.vehicleNo}
                 helperText={errors.vehicleNo}
               />
-
               <TextField
                 label="RC"
                 fullWidth
@@ -385,7 +423,6 @@ const BusView = () => {
                 error={!!errors.rc}
                 helperText={errors.rc}
               />
-
               <Select
                 fullWidth
                 value={selectedBus.status}
@@ -397,8 +434,6 @@ const BusView = () => {
                 <MenuItem value="Active">Active</MenuItem>
                 <MenuItem value="Inactive">Inactive</MenuItem>
               </Select>
-
-              {/* IMAGE UPLOAD */}
               <input
                 type="file"
                 accept="image/*"
@@ -407,9 +442,7 @@ const BusView = () => {
                   setSelectedBus({ ...selectedBus, image: e.target.files[0] })
                 }
               />
-
-              {/* Preview API Image or New Image */}
-              {selectedBus.image ? (
+              {selectedBus.image && typeof selectedBus.image === "object" ? (
                 <img
                   src={URL.createObjectURL(selectedBus.image)}
                   alt="preview"
@@ -417,19 +450,21 @@ const BusView = () => {
                 />
               ) : selectedBus.image ? (
                 <img
-                  src={`http://localhost:3005/uploads/${selectedBus.image}`}
+                  src={`http://localhost:3005/upload/${selectedBus.image}`}
                   alt="bus"
                   style={{ width: 100, height: 100, marginTop: 10, borderRadius: 8 }}
                 />
               ) : null}
-
             </>
           )}
         </DialogContent>
-
         <DialogActions>
-          <Button onClick={handleCloseEdit} color="secondary">Cancel</Button>
-          <Button onClick={handleUpdate} variant="contained">Update</Button>
+          <Button onClick={handleCloseEdit} color="secondary">
+            Cancel
+          </Button>
+          <Button onClick={handleUpdate} variant="contained">
+            Update
+          </Button>
         </DialogActions>
       </Dialog>
     </div>

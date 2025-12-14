@@ -6,6 +6,7 @@ const cors=require("cors")
 const mongoose = require('mongoose');
 const multer = require("multer");
 const path = require("path");
+const fs = require("fs");
 
 const db = require("./Connection/DBConnection");
 const busmodel = require('./model/bus');
@@ -14,7 +15,6 @@ const scheduleModel = require('./model/schedule')
 app.use(express.urlencoded({ extended: true }))
 app.use(express.json());
 app.use(cors());
-app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.listen(3005, () => {
   console.log('✅ Server is listening on http://localhost:3005');
@@ -143,26 +143,76 @@ app.put('/remove-bus-type/:id', async (req, res) => {
   }
 });
 
-app.put('/update-bus-type/:id', async (req, res) => {
-  try {
-    const updatedBusType = await busTypemodel.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    res.status(200).json({ message: 'bus type updated successfully', updatedBusType });
-  } catch (err) {
-    console.error('Error updating bus type:', err);
-    res.status(500).json({ message: 'Error updating bus type' });
-  }
-});
+const uploadPath = path.join(process.cwd(), "upload");
 
+if (!fs.existsSync(uploadPath)) {
+  fs.mkdirSync(uploadPath);
+  console.log("Uploads folder created at:", uploadPath);
+} else {
+  console.log("Uploads folder exists:", uploadPath);
+}
+
+// ---------------------------
+// Multer Storage Config
+// ---------------------------
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-     cb(null, path.join(process.cwd(), "uploads"));
+    cb(null, uploadPath);
   },
   filename: function (req, file, cb) {
-    cb(null, Date.now() + path.extname(file.originalname)); // unique filename
+    cb(null, Date.now() + path.extname(file.originalname));
   }
 });
 
 const upload = multer({ storage });
+
+// ---------------------------
+// Serve upload folder publicly
+// ---------------------------
+// app.use("/upload", express.static(uploadPath));
+app.use("/upload", express.static(path.join(__dirname, "upload")));
+
+// ---------------------------
+// UPDATE Bus Type API (as you have)
+// ---------------------------
+app.put('/update-bus-type/:id', async (req, res) => {
+  try {
+    const updatedBusType = await busTypemodel.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true }
+    );
+
+    return res.status(200).json({
+      message: 'Bus type updated successfully',
+      updatedBusType,
+    });
+
+  } catch (err) {
+    console.error('Error updating bus type:', err);
+    return res.status(500).json({
+      message: 'Error updating bus type'
+    });
+  }
+});
+
+
+// ---------------------------
+// FILE UPLOAD ENDPOINT
+// ---------------------------
+app.post("/upload-bus-image", upload.single("image"), (req, res) => {
+
+  if (!req.file) {
+    return res.status(400).json({ message: "No file uploaded" });
+  }
+
+  return res.status(200).json({
+    message: "Image uploaded successfully",
+    fileName: req.file.filename,
+    filePath: `/upload/${req.file.filename}`,
+  });
+});
+
 
 // ======================================================
 // GET ALL BUSES
@@ -186,7 +236,7 @@ app.get('/buses', async (request, response) => {
 // ADD BUS (WITH IMAGE)
 // ======================================================
 app.post('/add-bus', upload.single("image"), (request, response) => {
-
+console.log(request.file)
   const newRecord = new busmodel({
     ...request.body,
     image: request.file ? request.file.filename : null
@@ -227,7 +277,7 @@ app.put('/remove-bus/:id', async (req, res) => {
 app.put('/update-bus/:id', upload.single("image"), async (req, res) => {
   try {
     const updateData = { ...req.body };
-
+    console.log(req.file)
     // Only update image if a new one is uploaded
     if (req.file) {
       updateData.image = req.file.filename;
