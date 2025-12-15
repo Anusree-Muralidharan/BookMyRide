@@ -80,6 +80,12 @@
   cursor: pointer;
   width: 10% !important;          /* consistent size */
 }
+.booked {
+  background: #bdbdbd;
+  border-color: #757575;
+  color: #555;
+  cursor: not-allowed;
+}
 
 
 .book-btn:hover {

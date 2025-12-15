@@ -478,12 +478,19 @@ app.post("/book-seat", async (req, res) => {
     res.status(500).json({ message: "Error saving booking" });
   }
 });
+app.get("/bookings/bus/:busId", async (req, res) => {
+  try {
+    const bookings = await bookingModel.find({
+      busId: req.params.busId,
+      // status: "Confirmed"
+    });
+    console.log(bookings)
+    // collect all booked seats
+    const bookedSeats = bookings.flatMap(b => b.seats);
 
-
-
-
-
-
-
-
+    res.json(bookedSeats);
+  } catch (err) {
+    res.status(500).json({ message: "Error fetching booked seats" });
+  }
+});
 
