@@ -117,7 +117,7 @@ const BusView = () => {
 
   // ------------------ Edit Bus ------------------
   const handleEdit = (bus) => {
-    setSelectedBus({ ...bus, image: null });
+    setSelectedBus({ ...bus });
     setErrors({});
     setOpenEdit(true);
   };
