@@ -63,8 +63,14 @@
   width: 30px;
 }
 
-.book-btn {
+.book-button {
+  display: flex;
+  justify-content: center;   /* center align buttons */
+  gap: 20px;                 /* space between buttons */
   margin-top: 20px;
+}
+
+.book-btn {
   padding: 12px 22px;
   background-color: #1976d2;
   color: white;
@@ -72,8 +78,9 @@
   font-size: 18px;
   border-radius: 10px;
   cursor: pointer;
-  width: 15% !important;
+  width: 10% !important;          /* consistent size */
 }
+
 
 .book-btn:hover {
   background-color: #1259a1;

@@ -113,9 +113,14 @@ const seatLayout = generateSeatLayout();
       </div>
 
       <p>Total Fare: ₹{selectedSeats.length * busDetails.fare}</p>
-      <button className="book-btn" onClick={confirmBooking}>
-        Confirm Booking
-      </button>
+      <div className="book-button">
+        <button className="book-btn" onClick={confirmBooking}>
+          Confirm
+        </button>
+        <button className="book-btn" onClick={() => navigate("/user")}>
+          Cancel
+        </button>
+      </div>
     </div>
   );
 };

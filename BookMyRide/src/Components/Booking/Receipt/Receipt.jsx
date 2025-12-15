@@ -30,7 +30,7 @@ const Receipt = () => {
           <strong>Status:</strong> Completed
         </p>
         <p>
-          <strong>Amount Paid:</strong> ₹{(booking.amount / 100).toFixed(2)}
+          <strong>Amount Paid:</strong> ₹{(booking.amount).toFixed(2)}
         </p>
         <p>
           <strong>Booked Seats:</strong> {booking ? booking.seats.join(", ") : "N/A"}
