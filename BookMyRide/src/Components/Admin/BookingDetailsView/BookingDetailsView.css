@@ -1,0 +1,54 @@
+.booking-container {
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.page-title {
+  text-align: center;
+  margin-bottom: 20px;
+  font-size: 24px;
+  font-weight: bold;
+}
+
+.booking-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+}
+
+.booking-table th,
+.booking-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+}
+
+.booking-table th {
+  background-color: #607D8B;
+  color: white;
+}
+
+.booking-table tr:nth-child(even) {
+  background-color: #f9f9f9;
+}
+
+.booking-table tr:hover {
+  background-color: #f1f1f1;
+}
+
+.status {
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.status.confirmed {
+  background-color: #c8e6c9;
+  color: #256029;
+}
+
+.status.cancelled {
+  background-color: #ffcdd2;
+  color: #b71c1c;
+}

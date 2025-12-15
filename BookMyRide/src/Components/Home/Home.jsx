@@ -73,6 +73,7 @@ const Home = () => {
     { text: 'Buses', path: '/bus' },
     { text: 'Routes', path: '/routes' },
     { text: 'Schedule', path: '/schedule' },
+    { text: 'Booking Deatils', path: '/bookingDeatils' },
   ];
 
   const list = (

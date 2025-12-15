@@ -16,6 +16,7 @@ import Userlogin from './Components/User/Userlogin';
 import Payment from './Components/Booking/Payment/Payment';
 import Receipt from './Components/Booking/Receipt/Receipt';
 import UserDashboard from './Components/Booking/UserDashboard/UserDashboard';
+import BookingDetailsView from './Components/Admin/BookingDetailsView/BookingDetailsView';
 
 function AppContent() {
   const location = useLocation();
@@ -104,6 +105,7 @@ function AppContent() {
           }
         />
          <Route path="/payment" element={<Payment />} />
+         <Route path="/bookingDeatils" element={<BookingDetailsView />} />
          <Route path="/receipt" element={<Receipt />} />
          <Route path="/user" element={<UserDashboard />} />
         <Route 

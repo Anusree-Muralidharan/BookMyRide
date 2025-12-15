@@ -493,4 +493,23 @@ app.get("/bookings/bus/:busId", async (req, res) => {
     res.status(500).json({ message: "Error fetching booked seats" });
   }
 });
+// GET ALL BOOKINGS – ADMIN
+app.get("/bookings", async (req, res) => {
+  try {
+    const bookings = await bookingModel
+      .find()
+      .populate("busId", "name vehicleNo")
+      .populate("routeId", "sourceLocation destinationLocation")
+      .populate("userId", "name email")
+      // .sort({ createdAt: -1 });
+
+    res.status(200).json(bookings);
+  } catch (err) {
+    console.error("Error fetching bookings:", err);
+    res.status(500).json({ message: "Error fetching bookings" });
+  }
+});
+
+
+
 
