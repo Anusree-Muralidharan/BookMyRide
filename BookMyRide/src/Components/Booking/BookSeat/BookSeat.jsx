@@ -70,6 +70,7 @@ const BookSeat = ({ userId }) => {
     { length: totalSeats },
     (_, i) => (i + 1).toString()
   );
+  const availableSeats = totalSeats - (bookedSeats.length-1);
 
   const generateSeatLayout = () => {
     const layout = [];
@@ -103,7 +104,7 @@ const BookSeat = ({ userId }) => {
         <br />
         Distance: {busDetails.routeId.distance} km
         <br />
-        Fare per seat: ₹{busDetails.fare}
+        Fare per seat: ₹{busDetails.fare} (Available Seats:{availableSeats})
       </p>
 
       <div className="volvo-bus">
