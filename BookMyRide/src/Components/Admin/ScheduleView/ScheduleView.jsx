@@ -163,7 +163,7 @@ const ScheduleView = () => {
                 <td>{s.routeId?.sourceLocation} → {s.routeId?.destinationLocation}</td>
                 <td>{s.departureTime}</td>
                 <td>{s.arrivalTime}</td>
-                <td>{s.fare}</td>
+                <td>₹{s.fare}</td>
                 <td>{s.status}</td>
 
                 <td>
