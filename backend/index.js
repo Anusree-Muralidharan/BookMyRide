@@ -460,7 +460,7 @@ app.get("/bus/:id", async (req, res) => {
 // Save booking (after payment)
 app.post("/book-seat", async (req, res) => {
   try {
-    const { userId, busId, routeId, seats, fare } = req.body;
+    const { userId, busId, routeId, seats, fare,journeyDate } = req.body;
 
     const newBooking = new bookingModel({
       userId,
@@ -468,6 +468,7 @@ app.post("/book-seat", async (req, res) => {
       routeId,
       seats,
       fare,
+      journeyDate,
       status: "Confirmed",
     });
 
@@ -480,11 +481,18 @@ app.post("/book-seat", async (req, res) => {
 });
 app.get("/bookings/bus/:busId", async (req, res) => {
   try {
+   const { busId } = req.params;
+    const { date } = req.query; // 👈 journey date from frontend
+
+    if (!date) {
+      return res.status(400).json({ message: "Journey date is required" });
+    }
+
     const bookings = await bookingModel.find({
-      busId: req.params.busId,
+      busId: busId,
+      journeyDate: date, // 👈 filter by date
       // status: "Confirmed"
     });
-    console.log(bookings)
     // collect all booked seats
     const bookedSeats = bookings.flatMap(b => b.seats);
 

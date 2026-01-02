@@ -46,6 +46,7 @@ const CheckoutForm = () => {
         seats: bookingDetails.seats,
         fare: bookingDetails.amount,
         paymentId: paymentMethod.id, // optional: store Stripe payment ID
+        journeyDate:bookingDetails.journeyDate
       });
 
     //   alert("Booking saved successfully!");

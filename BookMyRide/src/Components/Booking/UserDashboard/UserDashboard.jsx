@@ -12,6 +12,7 @@ import banner4 from "./../../../assets/busx.webp";
 const banners = [banner1, banner2, banner3, banner4];
 
 const UserDashboard = () => {
+  const [journeyDate, setJourneyDate] = useState("");
   const navigate = useNavigate();
   const today = new Date().toISOString().split("T")[0];
 
@@ -128,7 +129,13 @@ const UserDashboard = () => {
               ))}
           </select>
 
-          <input type="date" min={today} required />
+          <input
+            type="date"
+            min={today}
+            value={journeyDate}
+            onChange={(e) => setJourneyDate(e.target.value)}
+            required
+          />
           <button type="submit">Search Buses</button>
         </form>
       </section>
@@ -154,7 +161,9 @@ const UserDashboard = () => {
                   <p>{item.departureTime} - {item.arrivalTime}</p>
                   <p className="fare">₹ {item.fare}</p>
 
-                  <button onClick={() => navigate(`/book/${item.busId._id}`)}>
+                  <button onClick={() => navigate(`/book/${item.busId._id}`, {
+                      state: { journeyDate }
+                    })}>
                     Book Seat
                   </button>
                 </div>

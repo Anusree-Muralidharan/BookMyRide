@@ -4,6 +4,8 @@ import "./BookingDetailsView.css";
 
 const BookingDetailsView = () => {
   const [bookings, setBookings] = useState([]);
+  const [filteredBookings, setFilteredBookings] = useState([]);
+  const [searchBus, setSearchBus] = useState("");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -13,7 +15,10 @@ const BookingDetailsView = () => {
   const fetchBookings = async () => {
     try {
       const res = await axios.get("http://localhost:3005/bookings");
-      setBookings(res.data.bookings || res.data);
+      const data = res.data.bookings || res.data;
+
+      setBookings(data);
+      setFilteredBookings(data);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching bookings", error);
@@ -21,12 +26,51 @@ const BookingDetailsView = () => {
     }
   };
 
-  if (loading) return <p style={{ textAlign: "center" }}>Loading bookings...</p>;
+  const handleSearch = () => {
+    if (!searchBus.trim()) {
+      setFilteredBookings(bookings);
+      return;
+    }
+
+    const filtered = bookings.filter((booking) =>
+      booking.busId?.name
+        ?.toLowerCase()
+        .includes(searchBus.toLowerCase())
+    );
+
+    setFilteredBookings(filtered);
+  };
+
+  const handleClear = () => {
+    setSearchBus("");
+    setFilteredBookings(bookings);
+  };
+
+  if (loading)
+    return <p style={{ textAlign: "center" }}>Loading bookings...</p>;
 
   return (
     <div className="booking-container">
-      {/* <h2 className="page-title">Booking Details</h2> */}
 
+      {/* 🔍 SEARCH BAR */}
+      <div className="search-bar">
+        <input
+          type="text"
+          placeholder="Search by Bus Name"
+          value={searchBus}
+          onChange={(e) => setSearchBus(e.target.value)}
+        />
+
+        <button className="search-btn" onClick={handleSearch}>
+          Search
+        </button>
+
+        <button className="clear-btn" onClick={handleClear}>
+          Clear
+        </button>
+      </div>
+
+      {/* 📋 BOOKINGS TABLE */}
       <table className="booking-table">
         <thead>
           <tr>
@@ -36,19 +80,21 @@ const BookingDetailsView = () => {
             <th>Route</th>
             <th>Seats</th>
             <th>Amount (₹)</th>
-            <th>Booking Date</th>
+            <th>Journey Date</th>
             <th>Status</th>
           </tr>
         </thead>
 
         <tbody>
-          {bookings.length > 0 ? (
-            bookings.map((booking, index) => (
+          {filteredBookings.length > 0 ? (
+            filteredBookings.map((booking, index) => (
               <tr key={booking._id}>
                 <td>{index + 1}</td>
 
                 <td>
-                  {booking.userId?.name || booking.userId?.email || "N/A"}
+                  {booking.userId?.name ||
+                    booking.userId?.email ||
+                    "N/A"}
                 </td>
 
                 <td>{booking.busId?.name || "N/A"}</td>
@@ -67,11 +113,8 @@ const BookingDetailsView = () => {
 
                 <td>{booking.fare}</td>
 
-                <td>
-                  {booking.bookingDate
-                    ? new Date(booking.bookingDate).toLocaleDateString()
-                    : "-"}
-                </td>
+                {/* ✅ JOURNEY DATE */}
+                <td>{booking.journeyDate || "-"}</td>
 
                 <td>
                   <span

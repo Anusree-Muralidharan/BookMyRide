@@ -2,10 +2,14 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 import "./BookSeat.css";
+import { useLocation } from "react-router-dom";
 
 const BookSeat = ({ userId }) => {
   const { id } = useParams(); // busId
   const navigate = useNavigate();
+
+  const location = useLocation();
+  const journeyDate = location.state?.journeyDate;
 
   const [busDetails, setBusDetails] = useState(null);
   const [selectedSeats, setSelectedSeats] = useState([]);
@@ -18,7 +22,7 @@ const BookSeat = ({ userId }) => {
       try {
         const busRes = await axios.get(`http://localhost:3005/bus/${id}`);
         const bookedRes = await axios.get(
-          `http://localhost:3005/bookings/bus/${id}`
+          `http://localhost:3005/bookings/bus/${id}`,{ params: { date: journeyDate } }
         );
 
         setBusDetails(busRes.data);
@@ -57,6 +61,7 @@ const BookSeat = ({ userId }) => {
         routeId: busDetails.routeId._id,
         seats: selectedSeats,
         amount: selectedSeats.length * busDetails.fare,
+        journeyDate: journeyDate,
       },
     });
   };
