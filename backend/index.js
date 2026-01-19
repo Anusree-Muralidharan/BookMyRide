@@ -360,36 +360,43 @@ app.get('/schedules', async (req, res) => {
 });
 
 
-app.post('/add-schedule', async (req, res) => {
+app.post("/add-schedule", async (req, res) => {
   try {
-    const newSchedule = new scheduleModel(req.body);
+    const data = {
+      ...req.body,
+      departureTime: new Date(req.body.departureTime),
+      arrivalTime: new Date(req.body.arrivalTime),
+    };
 
-    await newSchedule.save();
-    res.status(200).send('Schedule saved successfully');
+    const schedule = new scheduleModel(data);
+    await schedule.save();
 
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Error saving schedule');
+    res.status(201).json({ message: "Schedule added" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to add schedule" });
   }
 });
 
 
-app.put('/update-schedule/:id', async (req, res) => {
+
+app.put("/update-schedule/:id", async (req, res) => {
   try {
-    const updatedSchedule = await scheduleModel.findByIdAndUpdate(
+    const updatedData = {
+      ...req.body,
+      departureTime: new Date(req.body.departureTime),
+      arrivalTime: new Date(req.body.arrivalTime),
+    };
+
+    await scheduleModel.findByIdAndUpdate(
       req.params.id,
-      req.body,
-      { new: true }
+      updatedData
     );
 
-    res.status(200).json({
-      message: 'Schedule updated successfully',
-      updatedSchedule
-    });
-
-  } catch (error) {
-    console.error('Error updating schedule:', error);
-    res.status(500).json({ message: 'Error updating schedule' });
+    res.status(200).json({ message: "Schedule updated" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Update failed" });
   }
 });
 
@@ -413,28 +420,54 @@ app.put('/remove-schedule/:id', async (req, res) => {
   }
 });
 app.get("/search-buses", async (req, res) => {
-  try {
-    const { from, to } = req.query;
+  try {    
+    const { from, to, journeyDate } = req.query;
+    console.log(req.query)
 
-    // 1. Find route
+    // 1️⃣ Find route
     const route = await routesmodel.findOne({
       sourceLocation: from,
       destinationLocation: to,
       status: "Active",
     });
+    console.log(route)
 
     if (!route) {
       return res.status(404).json({ message: "No route found" });
     }
 
-    // 2. Find schedules for route
+    // 2️⃣ Date filter (IMPORTANT)
+    let dateFilter = {};
+    if (journeyDate) {
+      const startDate = new Date(journeyDate);
+      startDate.setHours(0, 0, 0, 0);
+      console.log(startDate,'startDate')
+
+      const endDate = new Date(journeyDate);
+      endDate.setHours(23, 59, 59, 999);
+      console.log(endDate,'endDate')
+
+      dateFilter = {
+        departureTime: {
+          $gte: startDate,
+          $lte: endDate,
+        },
+      };
+    }
+
+    // 3️⃣ Find schedules
     const schedules = await scheduleModel
       .find({
         routeId: route._id,
         status: "Active",
+        ...dateFilter, // 👈 DATE FILTER APPLIED
       })
-      .populate("busId") // get bus details
+      .populate("busId")
       .populate("routeId");
+
+    if (!schedules.length) {
+      return res.status(404).json({ message: "No buses available" });
+    }
 
     res.status(200).json(schedules);
   } catch (error) {
