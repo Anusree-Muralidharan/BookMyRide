@@ -159,8 +159,8 @@ const UserDashboard = () => {
                   <p>
                     {item.routeId.sourceLocation} → {item.routeId.destinationLocation}
                   </p>
-                  {/* <p>{new Date(item.departureTime).toLocaleString()} -{" "}
-  {new Date(item.arrivalTime).toLocaleString()}</p> */}
+                  <p>{item.departureTime}→{" "}
+  {item.arrivalTime}</p> 
                   <p className="fare">₹ {item.fare}</p>
 
                   <button onClick={() => navigate(`/book/${item.busId._id}`, {
