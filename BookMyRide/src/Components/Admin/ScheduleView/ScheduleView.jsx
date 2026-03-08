@@ -10,10 +10,22 @@ import {
   IconButton,
   MenuItem,
   Tooltip,
+  FormControlLabel,
+  Checkbox,
 } from "@mui/material";
 
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+
+const weekDays = [
+  "Monday",
+  "Tuesday",
+  "Wednesday",
+  "Thursday",
+  "Friday",
+  "Saturday",
+  "Sunday",
+];
 
 const ScheduleView = () => {
   const [schedules, setSchedules] = useState([]);
@@ -28,6 +40,7 @@ const ScheduleView = () => {
     routeId: "",
     departureTime: "",
     arrivalTime: "",
+    availableDays: [],
     fare: "",
     status: "Active",
   });
@@ -35,7 +48,7 @@ const ScheduleView = () => {
   const [selectedSchedule, setSelectedSchedule] = useState(null);
   const [errors, setErrors] = useState({});
 
-  /* ---------------- FETCH DATA ---------------- */
+  /* ---------------- FETCH ---------------- */
   const fetchSchedules = () => {
     axios
       .get("http://localhost:3005/schedules")
@@ -63,16 +76,104 @@ const ScheduleView = () => {
     fetchRoutes();
   }, []);
 
+  /* ---------------- TIME CONVERT HELPER ---------------- */
+  const convertTimeToMinutes = (time) => {
+    if (!time) return 0;
+    const [hours, minutes] = time.split(":");
+    return parseInt(hours) * 60 + parseInt(minutes);
+  };
+
   /* ---------------- VALIDATION ---------------- */
   const validate = (data) => {
     const err = {};
-    if (!data.busId) err.busId = "Select a bus";
-    if (!data.routeId) err.routeId = "Select a route";
+    const isEdit = !!data._id;
+
+    if (!data.busId) err.busId = "Select bus";
+    if (!data.routeId) err.routeId = "Select route";
     if (!data.departureTime) err.departureTime = "Required";
     if (!data.arrivalTime) err.arrivalTime = "Required";
+    if (!data.availableDays || data.availableDays.length === 0)
+      err.availableDays = "Select at least one day";
     if (!data.fare || data.fare <= 0) err.fare = "Invalid fare";
+
+    if (
+      data.departureTime &&
+      data.arrivalTime &&
+      data.arrivalTime <= data.departureTime
+    ) {
+      err.arrivalTime = "Arrival must be after departure";
+    }
+
+    if (
+      data.busId &&
+      data.departureTime &&
+      data.arrivalTime &&
+      data.availableDays &&
+      data.availableDays.length > 0
+    ) {
+      const newStart = convertTimeToMinutes(data.departureTime);
+      const newEnd = convertTimeToMinutes(data.arrivalTime);
+
+      const conflict = schedules.some((schedule) => {
+        const scheduleBusId = schedule.busId?._id || schedule.busId;
+        const sameBus = scheduleBusId === data.busId;
+
+        const sameDay =
+          schedule.availableDays &&
+          schedule.availableDays.some((day) =>
+            data.availableDays.includes(day)
+          );
+
+        const notSameRecord = isEdit ? schedule._id !== data._id : true;
+
+        const existingStart = convertTimeToMinutes(schedule.departureTime);
+        const existingEnd = convertTimeToMinutes(schedule.arrivalTime);
+
+        const overlap =
+          newStart < existingEnd && newEnd > existingStart;
+
+        return sameBus && sameDay && overlap && notSameRecord;
+      });
+
+      if (conflict) {
+        err.departureTime =
+          "This bus already has a schedule during this time on selected day";
+      }
+    }
+
     setErrors(err);
     return Object.keys(err).length === 0;
+  };
+
+  /* ---------------- DAY HANDLER ---------------- */
+  const handleDayChange = (day) => {
+    if (form.availableDays.includes(day)) {
+      setForm({
+        ...form,
+        availableDays: form.availableDays.filter((d) => d !== day),
+      });
+    } else {
+      setForm({
+        ...form,
+        availableDays: [...form.availableDays, day],
+      });
+    }
+  };
+
+  const handleEditDayChange = (day) => {
+    if (selectedSchedule.availableDays.includes(day)) {
+      setSelectedSchedule({
+        ...selectedSchedule,
+        availableDays: selectedSchedule.availableDays.filter(
+          (d) => d !== day
+        ),
+      });
+    } else {
+      setSelectedSchedule({
+        ...selectedSchedule,
+        availableDays: [...selectedSchedule.availableDays, day],
+      });
+    }
   };
 
   /* ---------------- ADD ---------------- */
@@ -82,6 +183,7 @@ const ScheduleView = () => {
       routeId: "",
       departureTime: "",
       arrivalTime: "",
+      availableDays: [],
       fare: "",
       status: "Active",
     });
@@ -108,8 +210,7 @@ const ScheduleView = () => {
       ...schedule,
       busId: schedule.busId?._id || schedule.busId,
       routeId: schedule.routeId?._id || schedule.routeId,
-      departureTime: schedule.departureTime?.slice(0, 16),
-      arrivalTime: schedule.arrivalTime?.slice(0, 16),
+      availableDays: schedule.availableDays || [],
     });
     setErrors({});
     setOpenEdit(true);
@@ -158,6 +259,7 @@ const ScheduleView = () => {
             <th>Route</th>
             <th>Departure</th>
             <th>Arrival</th>
+            <th>Days</th>
             <th>Fare</th>
             <th>Status</th>
             <th>Action</th>
@@ -169,8 +271,9 @@ const ScheduleView = () => {
               <tr key={i}>
                 <td>{s.busId?.name} ({s.busId?.vehicleNo})</td>
                 <td>{s.routeId?.sourceLocation} → {s.routeId?.destinationLocation}</td>
-                <td>{new Date(s.departureTime).toLocaleString()}</td>
-                <td>{new Date(s.arrivalTime).toLocaleString()}</td>
+                <td>{s.departureTime}</td>
+                <td>{s.arrivalTime}</td>
+                <td>{s.availableDays?.join(", ")}</td>
                 <td>₹{s.fare}</td>
                 <td>{s.status}</td>
                 <td>
@@ -189,7 +292,7 @@ const ScheduleView = () => {
             ))
           ) : (
             <tr>
-              <td colSpan="7" style={{ textAlign: "center" }}>
+              <td colSpan="8" style={{ textAlign: "center" }}>
                 No schedules found.
               </td>
             </tr>
@@ -201,7 +304,6 @@ const ScheduleView = () => {
       <Dialog open={openAdd} onClose={() => setOpenAdd(false)} fullWidth>
         <DialogTitle>Add Schedule</DialogTitle>
         <DialogContent>
-
           <TextField
             select
             label="Select Bus"
@@ -237,8 +339,8 @@ const ScheduleView = () => {
           </TextField>
 
           <TextField
-            label="Departure Date & Time"
-            type="datetime-local"
+            label="Departure Time"
+            type="time"
             fullWidth
             margin="normal"
             InputLabelProps={{ shrink: true }}
@@ -249,8 +351,8 @@ const ScheduleView = () => {
           />
 
           <TextField
-            label="Arrival Date & Time"
-            type="datetime-local"
+            label="Arrival Time"
+            type="time"
             fullWidth
             margin="normal"
             InputLabelProps={{ shrink: true }}
@@ -259,6 +361,27 @@ const ScheduleView = () => {
             error={!!errors.arrivalTime}
             helperText={errors.arrivalTime}
           />
+
+          <div style={{ marginTop: 15 }}>
+            <strong>Available Days</strong>
+            {errors.availableDays && (
+              <div style={{ color: "red" }}>{errors.availableDays}</div>
+            )}
+            <div>
+              {weekDays.map((day) => (
+                <FormControlLabel
+                  key={day}
+                  control={
+                    <Checkbox
+                      checked={form.availableDays.includes(day)}
+                      onChange={() => handleDayChange(day)}
+                    />
+                  }
+                  label={day}
+                />
+              ))}
+            </div>
+          </div>
 
           <TextField
             label="Fare"
@@ -282,8 +405,8 @@ const ScheduleView = () => {
             <MenuItem value="Active">Active</MenuItem>
             <MenuItem value="Inactive">Inactive</MenuItem>
           </TextField>
-
         </DialogContent>
+
         <DialogActions>
           <Button onClick={() => setOpenAdd(false)}>Cancel</Button>
           <Button variant="contained" onClick={handleAddSchedule}>
@@ -293,101 +416,153 @@ const ScheduleView = () => {
       </Dialog>
 
       {/* ================= EDIT MODAL ================= */}
-      <Dialog open={openEdit} onClose={() => setOpenEdit(false)} fullWidth>
-        <DialogTitle>Edit Schedule</DialogTitle>
-        <DialogContent>
+      {selectedSchedule && (
+        <Dialog open={openEdit} onClose={() => setOpenEdit(false)} fullWidth>
+          <DialogTitle>Edit Schedule</DialogTitle>
+          <DialogContent>
 
-          <TextField
-            select
-            label="Select Bus"
-            fullWidth
-            margin="normal"
-            value={selectedSchedule?.busId || ""}
-            onChange={(e) =>
-              setSelectedSchedule({ ...selectedSchedule, busId: e.target.value })
-            }
-          >
-            {buses.map((bus) => (
-              <MenuItem key={bus._id} value={bus._id}>
-                {bus.name} ({bus.vehicleNo})
-              </MenuItem>
-            ))}
-          </TextField>
+            <TextField
+              select
+              label="Select Bus"
+              fullWidth
+              margin="normal"
+              value={selectedSchedule.busId}
+              onChange={(e) =>
+                setSelectedSchedule({
+                  ...selectedSchedule,
+                  busId: e.target.value,
+                })
+              }
+              error={!!errors.busId}
+              helperText={errors.busId}
+            >
+              {buses.map((bus) => (
+                <MenuItem key={bus._id} value={bus._id}>
+                  {bus.name} ({bus.vehicleNo})
+                </MenuItem>
+              ))}
+            </TextField>
 
-          <TextField
-            select
-            label="Select Route"
-            fullWidth
-            margin="normal"
-            value={selectedSchedule?.routeId || ""}
-            onChange={(e) =>
-              setSelectedSchedule({ ...selectedSchedule, routeId: e.target.value })
-            }
-          >
-            {routes.map((r) => (
-              <MenuItem key={r._id} value={r._id}>
-                {r.sourceLocation} → {r.destinationLocation}
-              </MenuItem>
-            ))}
-          </TextField>
+            <TextField
+              select
+              label="Select Route"
+              fullWidth
+              margin="normal"
+              value={selectedSchedule.routeId}
+              onChange={(e) =>
+                setSelectedSchedule({
+                  ...selectedSchedule,
+                  routeId: e.target.value,
+                })
+              }
+              error={!!errors.routeId}
+              helperText={errors.routeId}
+            >
+              {routes.map((r) => (
+                <MenuItem key={r._id} value={r._id}>
+                  {r.sourceLocation} → {r.destinationLocation}
+                </MenuItem>
+              ))}
+            </TextField>
 
-          <TextField
-            label="Departure Date & Time"
-            type="datetime-local"
-            fullWidth
-            margin="normal"
-            InputLabelProps={{ shrink: true }}
-            value={selectedSchedule?.departureTime || ""}
-            onChange={(e) =>
-              setSelectedSchedule({ ...selectedSchedule, departureTime: e.target.value })
-            }
-          />
+            <TextField
+              label="Departure Time"
+              type="time"
+              fullWidth
+              margin="normal"
+              InputLabelProps={{ shrink: true }}
+              value={selectedSchedule.departureTime}
+              onChange={(e) =>
+                setSelectedSchedule({
+                  ...selectedSchedule,
+                  departureTime: e.target.value,
+                })
+              }
+              error={!!errors.departureTime}
+              helperText={errors.departureTime}
+            />
 
-          <TextField
-            label="Arrival Date & Time"
-            type="datetime-local"
-            fullWidth
-            margin="normal"
-            InputLabelProps={{ shrink: true }}
-            value={selectedSchedule?.arrivalTime || ""}
-            onChange={(e) =>
-              setSelectedSchedule({ ...selectedSchedule, arrivalTime: e.target.value })
-            }
-          />
+            <TextField
+              label="Arrival Time"
+              type="time"
+              fullWidth
+              margin="normal"
+              InputLabelProps={{ shrink: true }}
+              value={selectedSchedule.arrivalTime}
+              onChange={(e) =>
+                setSelectedSchedule({
+                  ...selectedSchedule,
+                  arrivalTime: e.target.value,
+                })
+              }
+              error={!!errors.arrivalTime}
+              helperText={errors.arrivalTime}
+            />
 
-          <TextField
-            label="Fare"
-            type="number"
-            fullWidth
-            margin="normal"
-            value={selectedSchedule?.fare || ""}
-            onChange={(e) =>
-              setSelectedSchedule({ ...selectedSchedule, fare: e.target.value })
-            }
-          />
+            <div style={{ marginTop: 15 }}>
+              <strong>Available Days</strong>
+              {errors.availableDays && (
+                <div style={{ color: "red" }}>{errors.availableDays}</div>
+              )}
+              <div>
+                {weekDays.map((day) => (
+                  <FormControlLabel
+                    key={day}
+                    control={
+                      <Checkbox
+                        checked={selectedSchedule.availableDays.includes(day)}
+                        onChange={() => handleEditDayChange(day)}
+                      />
+                    }
+                    label={day}
+                  />
+                ))}
+              </div>
+            </div>
 
-          <TextField
-            select
-            label="Status"
-            fullWidth
-            margin="normal"
-            value={selectedSchedule?.status || "Active"}
-            onChange={(e) =>
-              setSelectedSchedule({ ...selectedSchedule, status: e.target.value })
-            }
-          >
-            <MenuItem value="Active">Active</MenuItem>
-            <MenuItem value="Inactive">Inactive</MenuItem>
-          </TextField>
+            <TextField
+              label="Fare"
+              type="number"
+              fullWidth
+              margin="normal"
+              value={selectedSchedule.fare}
+              onChange={(e) =>
+                setSelectedSchedule({
+                  ...selectedSchedule,
+                  fare: e.target.value,
+                })
+              }
+              error={!!errors.fare}
+              helperText={errors.fare}
+            />
 
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => setOpenEdit(false)}>Cancel</Button>
-          <Button variant="contained" onClick={handleUpdateSchedule}>
-            Update
-          </Button>
-        </DialogActions>
-      </Dialog>
+            <TextField
+              select
+              label="Status"
+              fullWidth
+              margin="normal"
+              value={selectedSchedule.status}
+              onChange={(e) =>
+                setSelectedSchedule({
+                  ...selectedSchedule,
+                  status: e.target.value,
+                })
+              }
+            >
+              <MenuItem value="Active">Active</MenuItem>
+              <MenuItem value="Inactive">Inactive</MenuItem>
+            </TextField>
+
+          </DialogContent>
+
+          <DialogActions>
+            <Button onClick={() => setOpenEdit(false)}>Cancel</Button>
+            <Button variant="contained" onClick={handleUpdateSchedule}>
+              Update
+            </Button>
+          </DialogActions>
+        </Dialog>
+      )}
     </div>
   );
 };

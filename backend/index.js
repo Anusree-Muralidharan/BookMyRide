@@ -362,18 +362,47 @@ app.get('/schedules', async (req, res) => {
 
 app.post("/add-schedule", async (req, res) => {
   try {
-    const data = {
-      ...req.body,
-      departureTime: new Date(req.body.departureTime),
-      arrivalTime: new Date(req.body.arrivalTime),
-    };
+    const {
+      busId,
+      routeId,
+      departureTime,
+      arrivalTime,
+      availableDays,
+      fare,
+      status,
+    } = req.body;
 
-    const schedule = new scheduleModel(data);
+    // Basic validation
+    if (
+      !busId ||
+      !routeId ||
+      !departureTime ||
+      !arrivalTime ||
+      !availableDays ||
+      availableDays.length === 0 ||
+      !fare
+    ) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    const schedule = new scheduleModel({
+      busId,
+      routeId,
+      departureTime,   // "HH:mm"
+      arrivalTime,     // "HH:mm"
+      availableDays,   // ["Monday", "Tuesday"]
+      fare,
+      status: status || "Active",
+    });
+
     await schedule.save();
 
-    res.status(201).json({ message: "Schedule added" });
+    res.status(201).json({
+      message: "Schedule added successfully",
+      schedule,
+    });
   } catch (err) {
-    console.error(err);
+    console.error("Add schedule error:", err);
     res.status(500).json({ message: "Failed to add schedule" });
   }
 });
@@ -382,47 +411,73 @@ app.post("/add-schedule", async (req, res) => {
 
 app.put("/update-schedule/:id", async (req, res) => {
   try {
-    const updatedData = {
-      ...req.body,
-      departureTime: new Date(req.body.departureTime),
-      arrivalTime: new Date(req.body.arrivalTime),
-    };
+    const {
+      busId,
+      routeId,
+      departureTime,
+      arrivalTime,
+      availableDays,
+      fare,
+      status,
+    } = req.body;
 
-    await scheduleModel.findByIdAndUpdate(
+    const updatedSchedule = await scheduleModel.findByIdAndUpdate(
       req.params.id,
-      updatedData
+      {
+        busId,
+        routeId,
+        departureTime,
+        arrivalTime,
+        availableDays,
+        fare,
+        status,
+      },
+      { new: true }
     );
 
-    res.status(200).json({ message: "Schedule updated" });
+    if (!updatedSchedule) {
+      return res.status(404).json({ message: "Schedule not found" });
+    }
+
+    res.status(200).json({
+      message: "Schedule updated successfully",
+      updatedSchedule,
+    });
   } catch (err) {
-    console.error(err);
+    console.error("Update schedule error:", err);
     res.status(500).json({ message: "Update failed" });
   }
 });
 
 
-app.put('/remove-schedule/:id', async (req, res) => {
+app.put("/remove-schedule/:id", async (req, res) => {
   try {
     const deletedSchedule = await scheduleModel.findByIdAndUpdate(
       req.params.id,
-      { status: 'Inactive' },
+      { status: "Inactive" },
       { new: true }
     );
 
-    res.status(200).json({
-      message: 'Schedule marked as inactive',
-      deletedSchedule
-    });
+    if (!deletedSchedule) {
+      return res.status(404).json({ message: "Schedule not found" });
+    }
 
+    res.status(200).json({
+      message: "Schedule marked as inactive",
+      deletedSchedule,
+    });
   } catch (error) {
-    console.error('Error removing schedule:', error);
-    res.status(500).json({ message: 'Error removing schedule' });
+    console.error("Remove schedule error:", error);
+    res.status(500).json({ message: "Error removing schedule" });
   }
 });
 app.get("/search-buses", async (req, res) => {
-  try {    
+  try {
     const { from, to, journeyDate } = req.query;
-    console.log(req.query)
+
+    if (!from || !to || !journeyDate) {
+      return res.status(400).json({ message: "Missing search parameters" });
+    }
 
     // 1️⃣ Find route
     const route = await routesmodel.findOne({
@@ -430,37 +485,23 @@ app.get("/search-buses", async (req, res) => {
       destinationLocation: to,
       status: "Active",
     });
-    console.log(route)
 
     if (!route) {
       return res.status(404).json({ message: "No route found" });
     }
 
-    // 2️⃣ Date filter (IMPORTANT)
-    let dateFilter = {};
-    if (journeyDate) {
-      const startDate = new Date(journeyDate);
-      startDate.setHours(0, 0, 0, 0);
-      console.log(startDate,'startDate')
+    // 2️⃣ Convert journeyDate → weekday
+    const dateObj = new Date(journeyDate);
+    const dayName = dateObj.toLocaleDateString("en-US", {
+      weekday: "long",
+    });
 
-      const endDate = new Date(journeyDate);
-      endDate.setHours(23, 59, 59, 999);
-      console.log(endDate,'endDate')
-
-      dateFilter = {
-        departureTime: {
-          $gte: startDate,
-          $lte: endDate,
-        },
-      };
-    }
-
-    // 3️⃣ Find schedules
+    // 3️⃣ Find schedules running on that day
     const schedules = await scheduleModel
       .find({
         routeId: route._id,
         status: "Active",
-        ...dateFilter, // 👈 DATE FILTER APPLIED
+        availableDays: dayName,   // 👈 weekday filter
       })
       .populate("busId")
       .populate("routeId");
@@ -471,7 +512,7 @@ app.get("/search-buses", async (req, res) => {
 
     res.status(200).json(schedules);
   } catch (error) {
-    console.error(error);
+    console.error("Search error:", error);
     res.status(500).json({ message: "Search failed" });
   }
 });

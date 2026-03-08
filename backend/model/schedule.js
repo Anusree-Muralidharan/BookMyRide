@@ -1,4 +1,3 @@
-
 const mongoose = require("mongoose");
 
 const scheduleSchema = new mongoose.Schema(
@@ -13,19 +12,28 @@ const scheduleSchema = new mongoose.Schema(
       ref: "routes",
       required: true,
     },
+
     departureTime: {
-      type: Date,
+      type: String,   // "HH:mm"
       required: true,
     },
+
     arrivalTime: {
-      type: Date,
+      type: String,   // "HH:mm"
       required: true,
     },
+
+    availableDays: {
+      type: [String],   // ["Monday", "Tuesday"]
+      required: true,
+    },
+
     fare: {
       type: Number,
       required: true,
       min: 0,
     },
+
     status: {
       type: String,
       enum: ["Active", "Inactive"],
@@ -35,5 +43,4 @@ const scheduleSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-var scheduleModel = mongoose.model("Schedule", scheduleSchema);
-module.exports=scheduleModel;
+module.exports = mongoose.model("Schedule", scheduleSchema);
